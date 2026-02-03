@@ -1,0 +1,283 @@
+// ===================================
+// ⚽ Football Manager — Veritabanı Şeması
+// ===================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ===================================
+// 1. User (Kullanıcı)
+// ===================================
+model User {
+  id               Int       @id @default(autoincrement())
+  tgId             BigInt    @unique
+  username         String?
+  level            Int       @default(1)
+  xp               Int       @default(0)
+  coins            Int       @default(50000)
+  isNewPlayer      Boolean   @default(true)
+  newPlayerUntil   DateTime?
+  lastDailyReward  DateTime?
+  notificationPrefs Json?    // { matchReminders, goals, results, transfers, salaries }
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+
+  // İlişkiler
+  team         Team?
+  transactions Transaction[]
+
+  @@index([tgId])
+}
+
+// ===================================
+// 2. Team (Takım)
+// ===================================
+model Team {
+  id                Int      @id @default(autoincrement())
+  userId            Int      @unique
+  name              String   @unique
+  formation         String   @default("F442")
+  tactic            String   @default("BALANCED")
+  powerRating       Float    @default(0)
+  stadiumLevel      Int      @default(1)
+  stadiumMaintained Boolean  @default(true)
+  coachTier         String?  // BRONZE, SILVER, GOLD
+  coachExpiresAt    DateTime?
+  createdAt         DateTime @default(now())
+
+  // İlişkiler
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  players      Player[]
+  leagueTeams  LeagueTeam[]
+  homeMatches  Match[]      @relation("HomeTeam")
+  awayMatches  Match[]      @relation("AwayTeam")
+  transfersFrom Transfer[]  @relation("TransferFrom")
+  transfersTo   Transfer[]  @relation("TransferTo")
+  matchEvents  MatchEvent[] @relation("EventTeam")
+
+  @@index([userId])
+  @@index([powerRating])
+}
+
+// ===================================
+// 3. Player (Futbolcu)
+// ===================================
+model Player {
+  id            Int      @id @default(autoincrement())
+  teamId        Int?     // null = serbest oyuncu
+  name          String
+  age           Int      // 17-38
+  position      String   // Position enum
+  altPosition   String?  // Alternatif pozisyon
+  isStarter     Boolean  @default(false)
+  jerseyNumber  Int?
+
+  // 7 Ana Stat (1-99)
+  speed         Float    @default(50)
+  shooting      Float    @default(50)
+  passing       Float    @default(50)
+  dribbling     Float    @default(50)
+  defense       Float    @default(50)
+  physical      Float    @default(50)
+  goalkeeping   Float    @default(50)
+
+  // Overall
+  overall       Float    @default(50)
+
+  // Dinamik Statlar
+  morale        Float    @default(70)   // 0-100
+  form          Float    @default(50)   // Son 5 maç ortalaması
+  fitness       Float    @default(100)  // Kondisyon 0-100
+  injuryDuration Int     @default(0)    // Kalan sakatlık süresi (maç)
+  suspendedUntil Int     @default(0)    // Cezalı maç sayısı
+  yellowCards   Int      @default(0)    // Sezon toplam sarı
+
+  // Ekonomi
+  marketValue   Int      @default(10000)
+  salary        Int      @default(200)
+
+  // Antrenman
+  lastTrainingAt         DateTime?
+  trainingCooldownUntil  DateTime?
+
+  createdAt     DateTime @default(now())
+
+  // İlişkiler
+  team          Team?         @relation(fields: [teamId], references: [id], onDelete: SetNull)
+  matchEvents   MatchEvent[]  @relation("EventPlayer")
+  secondEvents  MatchEvent[]  @relation("EventSecondPlayer")
+  transfers     Transfer[]
+
+  @@index([teamId])
+  @@index([position])
+  @@index([overall])
+  @@index([marketValue])
+}
+
+// ===================================
+// 4. Season (Sezon)
+// ===================================
+model Season {
+  id        Int      @id @default(autoincrement())
+  number    Int      @unique // Sezon numarası
+  startDate DateTime
+  endDate   DateTime
+  status    String   @default("ACTIVE") // ACTIVE, FINISHED, TRANSFER_WINDOW
+
+  // İlişkiler
+  leagues  League[]
+  matches  Match[]
+
+  @@index([status])
+}
+
+// ===================================
+// 5. League (Lig)
+// ===================================
+model League {
+  id        Int    @id @default(autoincrement())
+  name      String // "A Ligi", "B Ligi"
+  type      String // A_LEAGUE, B_LEAGUE
+  seasonId  Int
+  status    String @default("ACTIVE") // ACTIVE, FINISHED, TRANSFER_WINDOW
+
+  // İlişkiler
+  season      Season       @relation(fields: [seasonId], references: [id], onDelete: Cascade)
+  leagueTeams LeagueTeam[]
+  matches     Match[]
+
+  @@index([seasonId])
+  @@index([type])
+}
+
+// ===================================
+// 6. LeagueTeam (Lig-Takım Bağlantısı)
+// ===================================
+model LeagueTeam {
+  id           Int  @id @default(autoincrement())
+  leagueId     Int
+  teamId       Int
+  played       Int  @default(0)
+  wins         Int  @default(0)
+  draws        Int  @default(0)
+  losses       Int  @default(0)
+  goalsFor     Int  @default(0)
+  goalsAgainst Int  @default(0)
+  points       Int  @default(0)
+
+  // İlişkiler
+  league League @relation(fields: [leagueId], references: [id], onDelete: Cascade)
+  team   Team   @relation(fields: [teamId], references: [id], onDelete: Cascade)
+
+  @@unique([leagueId, teamId])
+  @@index([leagueId])
+  @@index([teamId])
+  @@index([points])
+}
+
+// ===================================
+// 7. Match (Maç)
+// ===================================
+model Match {
+  id           Int       @id @default(autoincrement())
+  leagueId     Int?
+  seasonId     Int?
+  homeTeamId   Int
+  awayTeamId   Int
+  scheduledAt  DateTime
+  status       String    @default("SCHEDULED") // SCHEDULED, LIVE, FINISHED, CANCELLED
+  homeScore    Int       @default(0)
+  awayScore    Int       @default(0)
+  matchWeek    Int?
+  isFriendly   Boolean   @default(false)
+  matchData    Json?     // Detaylı maç istatistikleri
+
+  // İlişkiler
+  league   League?      @relation(fields: [leagueId], references: [id], onDelete: SetNull)
+  season   Season?      @relation(fields: [seasonId], references: [id], onDelete: SetNull)
+  homeTeam Team         @relation("HomeTeam", fields: [homeTeamId], references: [id], onDelete: Cascade)
+  awayTeam Team         @relation("AwayTeam", fields: [awayTeamId], references: [id], onDelete: Cascade)
+  events   MatchEvent[]
+
+  @@index([scheduledAt])
+  @@index([status])
+  @@index([leagueId])
+  @@index([homeTeamId])
+  @@index([awayTeamId])
+  @@index([seasonId])
+}
+
+// ===================================
+// 8. MatchEvent (Maç Olayı)
+// ===================================
+model MatchEvent {
+  id              Int     @id @default(autoincrement())
+  matchId         Int
+  tick            Int     // 0-59
+  minute          Int     // 1-90
+  type            String  // MatchEventType enum
+  teamId          Int?
+  playerId        Int?
+  secondPlayerId  Int?    // Asist, faul yapılan vb.
+  detail          Json?   // Ek bilgi
+  commentary      String? // Türkçe yorum
+
+  // İlişkiler
+  match        Match   @relation(fields: [matchId], references: [id], onDelete: Cascade)
+  team         Team?   @relation("EventTeam", fields: [teamId], references: [id], onDelete: SetNull)
+  player       Player? @relation("EventPlayer", fields: [playerId], references: [id], onDelete: SetNull)
+  secondPlayer Player? @relation("EventSecondPlayer", fields: [secondPlayerId], references: [id], onDelete: SetNull)
+
+  @@index([matchId])
+  @@index([type])
+}
+
+// ===================================
+// 9. Transfer
+// ===================================
+model Transfer {
+  id          Int       @id @default(autoincrement())
+  playerId    Int
+  fromTeamId  Int?
+  toTeamId    Int?
+  price       Int
+  status      String    @default("PENDING") // PENDING, ACCEPTED, REJECTED, EXPIRED
+  expiresAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  // İlişkiler
+  player   Player @relation(fields: [playerId], references: [id], onDelete: Cascade)
+  fromTeam Team?  @relation("TransferFrom", fields: [fromTeamId], references: [id], onDelete: SetNull)
+  toTeam   Team?  @relation("TransferTo", fields: [toTeamId], references: [id], onDelete: SetNull)
+
+  @@index([status])
+  @@index([playerId])
+  @@index([fromTeamId])
+  @@index([toTeamId])
+  @@index([expiresAt])
+}
+
+// ===================================
+// 10. Transaction (Para Hareketleri)
+// ===================================
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  userId      Int
+  amount      Int      // Pozitif = gelir, negatif = gider
+  type        String   // TransactionType enum
+  description String?
+  createdAt   DateTime @default(now())
+
+  // İlişkiler
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([type])
+  @@index([createdAt])
+}
