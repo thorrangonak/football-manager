@@ -47,13 +47,11 @@
     overflow-x: hidden;
   }
 
-  /* ── Scrollbar ── */
   ::-webkit-scrollbar { width: 6px; }
   ::-webkit-scrollbar-track { background: var(--bg); }
   ::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 3px; }
   ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
 
-  /* ── Background Pattern ── */
   body::before {
     content: '';
     position: fixed;
@@ -65,539 +63,1520 @@
     z-index: 0;
   }
 
-  /* ── Layout ── */
   .app { position: relative; z-index: 1; }
 
+  /* ── Header ── */
   .header {
-    position: sticky;
-    top: 0;
-    z-index: 100;
+    position: sticky; top: 0; z-index: 100;
     background: rgba(10, 14, 23, 0.85);
     backdrop-filter: blur(20px);
     border-bottom: 1px solid var(--border);
     padding: 0 2rem;
   }
-
   .header-inner {
-    max-width: 1400px;
-    margin: 0 auto;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+    max-width: 1400px; margin: 0 auto;
+    display: flex; align-items: center; justify-content: space-between;
     height: 72px;
   }
-
-  .logo {
-    display: flex;
-    align-items: center;
-    gap: 14px;
-  }
-
+  .logo { display: flex; align-items: center; gap: 14px; }
   .logo-icon {
-    width: 42px;
-    height: 42px;
+    width: 42px; height: 42px;
     background: linear-gradient(135deg, var(--green), var(--blue));
     border-radius: 12px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 22px;
-    box-shadow: 0 0 20px rgba(16,185,129,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 22px; font-weight: 800;
   }
-
-  .logo-text {
-    font-size: 20px;
-    font-weight: 700;
-    letter-spacing: -0.5px;
-  }
-
+  .logo-text { font-weight: 700; font-size: 1.2rem; }
   .logo-text span { color: var(--green); }
 
-  .header-stats {
-    display: flex;
-    gap: 28px;
-    align-items: center;
-  }
+  .header-stats { display: flex; gap: 24px; align-items: center; }
+  .h-stat { text-align: center; }
+  .h-stat-val { font-size: 1.3rem; font-weight: 700; color: var(--green); }
+  .h-stat-lbl { font-size: 0.7rem; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
 
-  .header-stat {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 2px;
-  }
-
-  .header-stat-value {
-    font-size: 22px;
-    font-weight: 800;
-    font-family: 'JetBrains Mono', monospace;
-    letter-spacing: -1px;
-  }
-
-  .header-stat-label {
-    font-size: 11px;
-    color: var(--text-dim);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    font-weight: 500;
-  }
-
-  .main {
-    max-width: 1400px;
-    margin: 0 auto;
-    padding: 2rem;
-  }
+  /* ── Content ── */
+  .content { max-width: 1400px; margin: 0 auto; padding: 2rem; }
 
   /* ── Overview Cards ── */
-  .overview {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 16px;
-    margin-bottom: 2.5rem;
-  }
-
+  .overview { display: grid; grid-template-columns: repeat(auto-fill, minmax(175px, 1fr)); gap: 12px; margin-bottom: 2rem; }
   .overview-card {
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 20px;
-    cursor: pointer;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); padding: 16px;
+    cursor: pointer; transition: var(--transition); position: relative; overflow: hidden;
+  }
+  .overview-card:hover { background: var(--bg-card-hover); border-color: var(--border-active); transform: translateY(-2px); }
+  .overview-card.active { border-color: var(--card-accent); background: rgba(var(--card-accent-rgb), 0.08); }
+  .oc-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+  .oc-phase { font-size: 0.72rem; font-weight: 600; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1px; }
+  .oc-icon { font-size: 1.4rem; }
+  .oc-title { font-size: 0.85rem; font-weight: 600; margin-bottom: 12px; line-height: 1.3; min-height: 36px; }
+  .oc-progress-bar { height: 4px; background: var(--border); border-radius: 2px; margin-bottom: 8px; overflow: hidden; }
+  .oc-progress-fill { height: 100%; border-radius: 2px; transition: width 0.5s ease; }
+  .oc-stats { display: flex; justify-content: space-between; font-size: 0.78rem; color: var(--text-dim); }
+
+  /* ── Toolbar ── */
+  .toolbar { display: flex; gap: 12px; margin-bottom: 1.5rem; flex-wrap: wrap; align-items: center; }
+  .search-box {
+    flex: 1; min-width: 200px; padding: 10px 16px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius-sm); color: var(--text);
+    font-family: 'Outfit', sans-serif; font-size: 0.9rem;
+    outline: none; transition: var(--transition);
+  }
+  .search-box:focus { border-color: var(--blue); }
+  .filter-btns { display: flex; gap: 6px; }
+  .filter-btn {
+    padding: 8px 16px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-dim);
+    border-radius: var(--radius-xs); cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: 0.82rem;
     transition: var(--transition);
-    position: relative;
-    overflow: hidden;
   }
+  .filter-btn:hover { border-color: var(--border-active); color: var(--text); }
+  .filter-btn.active { background: var(--blue); border-color: var(--blue); color: #fff; }
 
-  .overview-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 3px;
-    background: var(--card-accent);
-    opacity: 0.7;
+  /* ── IO Buttons ── */
+  .io-btns { display: flex; gap: 6px; margin-left: auto; }
+  .io-btn {
+    padding: 8px 14px; border: 1px solid var(--border);
+    background: var(--bg-card); color: var(--text-dim);
+    border-radius: var(--radius-xs); cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: 0.78rem;
+    transition: var(--transition);
   }
+  .io-btn:hover { border-color: var(--green); color: var(--green); }
 
-  .overview-card:hover {
-    border-color: var(--border-active);
-    transform: translateY(-2px);
-    box-shadow: var(--shadow);
-  }
-
-  .overview-card.active {
-    border-color: var(--card-accent);
-    box-shadow: 0 0 24px rgba(var(--card-accent-rgb), 0.1);
-  }
-
-  .oc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
-  .oc-phase { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
-  .oc-icon { font-size: 20px; }
-  .oc-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; line-height: 1.3; }
-  .oc-progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
-  .oc-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
-  .oc-stats { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); }
-  .oc-stats strong { color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px; }
-
-  /* ── Phase Section ── */
-  .phase-section {
-    margin-bottom: 2rem;
-    animation: fadeIn 0.4s ease;
-  }
-
-  @keyframes fadeIn {
-    from { opacity: 0; transform: translateY(12px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-
-  .phase-header {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 1.5rem;
-    padding-bottom: 16px;
-    border-bottom: 1px solid var(--border);
-  }
-
+  /* ── Phase Sections ── */
+  .phase-section { margin-bottom: 2rem; }
+  .phase-header { display: flex; align-items: center; gap: 12px; margin-bottom: 1rem; flex-wrap: wrap; }
   .phase-badge {
-    padding: 6px 14px;
-    border-radius: 20px;
-    font-size: 12px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: 1px;
+    padding: 4px 12px; border-radius: 20px;
+    font-size: 0.78rem; font-weight: 600;
   }
+  .phase-title { font-size: 1.15rem; font-weight: 700; }
+  .phase-desc { font-size: 0.82rem; color: var(--text-dim); margin-left: auto; }
 
-  .phase-title {
-    font-size: 24px;
-    font-weight: 800;
-    letter-spacing: -0.5px;
-  }
-
-  .phase-desc {
-    font-size: 14px;
-    color: var(--text-dim);
-    margin-left: auto;
-  }
-
-  /* ── Category ── */
+  /* ── Categories ── */
   .category {
-    margin-bottom: 1.5rem;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); margin-bottom: 8px; overflow: hidden;
   }
-
   .category-header {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    margin-bottom: 12px;
-    cursor: pointer;
-    user-select: none;
-    padding: 8px 0;
+    display: flex; align-items: center; padding: 14px 18px;
+    cursor: pointer; transition: var(--transition);
+    user-select: none; gap: 10px;
   }
-
+  .category-header:hover { background: var(--bg-card-hover); }
   .category-header:hover .category-title { color: var(--text); }
-
   .category-chevron {
-    width: 20px;
-    height: 20px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.2s;
-    color: var(--text-dim);
-    font-size: 12px;
+    font-size: 0.65rem; color: var(--text-muted);
+    transition: transform 0.25s ease; flex-shrink: 0;
+    width: 16px; text-align: center;
   }
-
   .category-chevron.open { transform: rotate(90deg); }
-
   .category-title {
-    font-size: 14px;
-    font-weight: 600;
-    color: var(--text-muted);
-    text-transform: uppercase;
-    letter-spacing: 1px;
-    transition: color 0.2s;
+    font-size: 0.92rem; font-weight: 600;
+    color: var(--text-dim); transition: var(--transition); flex: 1;
   }
-
+  .category-right {
+    display: flex; align-items: center; gap: 8px; margin-left: auto; flex-shrink: 0;
+  }
   .category-count {
-    font-size: 12px;
-    color: var(--text-dim);
-    font-family: 'JetBrains Mono', monospace;
-    margin-left: auto;
+    font-size: 0.78rem; font-weight: 500;
+    color: var(--text-muted); font-family: 'JetBrains Mono', monospace;
   }
 
-  .category-tasks {
-    display: flex;
-    flex-direction: column;
-    gap: 6px;
-    overflow: hidden;
-    transition: max-height 0.3s ease;
-  }
-
-  .category-tasks.collapsed {
-    max-height: 0 !important;
-    overflow: hidden;
-  }
-
-  /* ── Task Item ── */
-  .task {
-    display: flex;
-    align-items: flex-start;
-    gap: 14px;
-    padding: 14px 16px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    cursor: pointer;
+  /* ── Prompt Button ── */
+  .prompt-btn {
+    padding: 4px 10px; border: 1px solid var(--purple)44;
+    background: var(--purple)15; color: var(--purple);
+    border-radius: var(--radius-xs); cursor: pointer;
+    font-size: 0.72rem; font-weight: 600;
+    font-family: 'Outfit', sans-serif;
     transition: var(--transition);
-    position: relative;
+    display: flex; align-items: center; gap: 4px;
+    white-space: nowrap;
+  }
+  .prompt-btn:hover {
+    background: var(--purple)30; border-color: var(--purple);
+    transform: scale(1.05);
   }
 
-  .task:hover {
-    background: var(--bg-card-hover);
-    border-color: var(--border-active);
+  /* ── Tasks ── */
+  .category-tasks {
+    overflow: hidden;
+    transition: max-height 0.35s cubic-bezier(0.4, 0, 0.2, 1);
   }
+  .category-tasks.collapsed { max-height: 0 !important; }
 
-  .task.done {
-    opacity: 0.55;
-    background: var(--bg-surface);
+  .task {
+    display: flex; align-items: flex-start; gap: 12px;
+    padding: 12px 18px 12px 48px;
+    border-top: 1px solid var(--border);
+    cursor: pointer; transition: var(--transition);
   }
-
-  .task.done .task-text { text-decoration: line-through; color: var(--text-dim); }
+  .task:hover { background: rgba(59,130,246,0.04); }
+  .task.done { opacity: 0.5; }
+  .task.done .task-text { text-decoration: line-through; }
 
   .checkbox {
-    width: 22px;
-    height: 22px;
-    min-width: 22px;
+    width: 20px; height: 20px; flex-shrink: 0;
     border: 2px solid var(--border-active);
-    border-radius: var(--radius-xs);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: var(--transition);
-    margin-top: 1px;
+    border-radius: 6px; display: flex;
+    align-items: center; justify-content: center;
+    transition: var(--transition); margin-top: 1px;
   }
-
-  .task:hover .checkbox { border-color: var(--green); }
-
-  .task.done .checkbox {
-    background: var(--green);
-    border-color: var(--green);
-  }
-
   .checkbox svg {
-    width: 14px;
-    height: 14px;
-    stroke: white;
-    stroke-width: 3;
-    fill: none;
-    opacity: 0;
-    transform: scale(0.5);
+    width: 12px; height: 12px; stroke: transparent;
+    stroke-width: 3; fill: none; stroke-linecap: round; stroke-linejoin: round;
     transition: var(--transition);
   }
-
-  .task.done .checkbox svg {
-    opacity: 1;
-    transform: scale(1);
+  .task.done .checkbox {
+    background: var(--green); border-color: var(--green);
   }
+  .task.done .checkbox svg { stroke: #fff; }
 
-  .task-content { flex: 1; min-width: 0; }
-
-  .task-text {
-    font-size: 14px;
-    font-weight: 500;
-    line-height: 1.5;
-    transition: var(--transition);
-  }
-
-  .task-meta {
-    display: flex;
-    gap: 8px;
-    margin-top: 6px;
-    flex-wrap: wrap;
-  }
-
+  .task-content { flex: 1; }
+  .task-text { font-size: 0.88rem; line-height: 1.5; }
+  .task-meta { display: flex; gap: 6px; margin-top: 4px; flex-wrap: wrap; }
   .task-tag {
-    font-size: 11px;
-    padding: 2px 8px;
-    border-radius: 4px;
-    font-weight: 600;
-    letter-spacing: 0.3px;
+    font-size: 0.65rem; padding: 2px 8px;
+    border-radius: 4px; font-weight: 500;
+    text-transform: uppercase; letter-spacing: 0.5px;
+  }
+  .tag-critical { background: var(--red)20; color: var(--red); }
+  .tag-important { background: var(--orange)20; color: var(--orange); }
+  .tag-normal { background: var(--blue)15; color: var(--blue); }
+  .tag-engine { background: var(--purple)15; color: var(--purple); }
+  .tag-bot { background: var(--cyan)15; color: var(--cyan); }
+  .tag-db { background: var(--green)15; color: var(--green); }
+  .tag-api { background: var(--pink)15; color: var(--pink); }
+  .tag-web { background: var(--yellow)15; color: var(--yellow); }
+
+  /* ── Prompt Modal ── */
+  .prompt-overlay {
+    display: none; position: fixed; inset: 0; z-index: 9999;
+    background: rgba(0,0,0,0.75); backdrop-filter: blur(8px);
+    align-items: center; justify-content: center;
+    padding: 20px;
+    animation: fadeIn 0.2s ease;
+  }
+  .prompt-overlay.show { display: flex; }
+
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  @keyframes slideUp {
+    from { transform: translateY(30px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
   }
 
-  .tag-critical { background: rgba(239,68,68,0.15); color: var(--red); }
-  .tag-important { background: rgba(245,158,11,0.15); color: var(--orange); }
-  .tag-normal { background: rgba(59,130,246,0.15); color: var(--blue); }
-  .tag-engine { background: rgba(139,92,246,0.15); color: var(--purple); }
-  .tag-db { background: rgba(6,182,212,0.15); color: var(--cyan); }
-  .tag-bot { background: rgba(236,72,153,0.15); color: var(--pink); }
-  .tag-web { background: rgba(234,179,8,0.15); color: var(--yellow); }
-  .tag-api { background: rgba(16,185,129,0.15); color: var(--green); }
-
-  /* ── Notes Panel ── */
-  .notes-section {
-    margin-top: 3rem;
-    padding-top: 2rem;
-    border-top: 1px solid var(--border);
+  .prompt-modal {
+    background: #0d1117; border: 1px solid #30363d;
+    border-radius: 16px; width: 100%; max-width: 900px;
+    max-height: 85vh; display: flex; flex-direction: column;
+    box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+    animation: slideUp 0.3s ease;
   }
+  .prompt-modal-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 18px 24px; border-bottom: 1px solid #30363d;
+    flex-shrink: 0;
+  }
+  .prompt-modal-title {
+    font-size: 1rem; font-weight: 700; color: var(--purple);
+    display: flex; align-items: center; gap: 8px;
+  }
+  .prompt-modal-title::before { content: '📋'; }
+  .prompt-modal-actions { display: flex; gap: 8px; }
 
-  .notes-area {
-    width: 100%;
-    min-height: 160px;
-    background: var(--bg-card);
-    border: 1px solid var(--border);
-    border-radius: var(--radius);
-    padding: 16px;
+  .prompt-copy-btn {
+    padding: 8px 16px; border: 1px solid var(--green)55;
+    background: var(--green)15; color: var(--green);
+    border-radius: var(--radius-xs); cursor: pointer;
+    font-family: 'Outfit', sans-serif; font-size: 0.82rem;
+    font-weight: 600; transition: var(--transition);
+  }
+  .prompt-copy-btn:hover { background: var(--green)30; }
+  .prompt-copy-btn.copied { background: var(--green); color: #fff; }
+
+  .prompt-close-btn {
+    padding: 8px 12px; border: 1px solid #30363d;
+    background: transparent; color: var(--text-dim);
+    border-radius: var(--radius-xs); cursor: pointer;
+    font-size: 1.1rem; transition: var(--transition);
+    line-height: 1;
+  }
+  .prompt-close-btn:hover { background: #21262d; color: var(--text); }
+
+  .prompt-modal-body {
+    flex: 1; overflow-y: auto; padding: 0;
+  }
+  .prompt-modal-body::-webkit-scrollbar { width: 6px; }
+  .prompt-modal-body::-webkit-scrollbar-track { background: #0d1117; }
+  .prompt-modal-body::-webkit-scrollbar-thumb { background: #30363d; border-radius: 3px; }
+
+  .prompt-code {
     font-family: 'JetBrains Mono', monospace;
-    font-size: 13px;
-    color: var(--text);
-    resize: vertical;
-    outline: none;
-    transition: border-color 0.2s;
+    font-size: 0.78rem; line-height: 1.7;
+    color: #c9d1d9; padding: 24px;
+    white-space: pre-wrap; word-wrap: break-word;
+    margin: 0;
   }
 
+  .prompt-modal-footer {
+    padding: 12px 24px; border-top: 1px solid #30363d;
+    display: flex; align-items: center; justify-content: space-between;
+    flex-shrink: 0;
+  }
+  .prompt-footer-hint {
+    font-size: 0.72rem; color: var(--text-muted);
+  }
+
+  /* ── Notes ── */
+  .notes-section { margin-top: 2rem; }
+  .notes-title { font-size: 0.9rem; font-weight: 600; margin-bottom: 8px; color: var(--text-dim); }
+  .notes-area {
+    width: 100%; min-height: 100px; padding: 14px;
+    background: var(--bg-card); border: 1px solid var(--border);
+    border-radius: var(--radius); color: var(--text);
+    font-family: 'JetBrains Mono', monospace; font-size: 0.85rem;
+    outline: none; resize: vertical; transition: var(--transition);
+  }
   .notes-area:focus { border-color: var(--blue); }
-  .notes-area::placeholder { color: var(--text-muted); }
-
-  /* ── Filter Bar ── */
-  .filter-bar {
-    display: flex;
-    gap: 10px;
-    margin-bottom: 2rem;
-    flex-wrap: wrap;
-    align-items: center;
-  }
-
-  .filter-btn {
-    padding: 8px 16px;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    background: transparent;
-    color: var(--text-dim);
-    font-family: 'Outfit', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-  }
-
-  .filter-btn:hover { border-color: var(--border-active); color: var(--text); }
-  .filter-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
-
-  .filter-sep {
-    width: 1px;
-    height: 24px;
-    background: var(--border);
-    margin: 0 4px;
-  }
-
-  .search-input {
-    flex: 1;
-    min-width: 200px;
-    padding: 8px 16px;
-    border: 1px solid var(--border);
-    border-radius: 20px;
-    background: var(--bg-card);
-    color: var(--text);
-    font-family: 'Outfit', sans-serif;
-    font-size: 13px;
-    outline: none;
-    transition: border-color 0.2s;
-  }
-
-  .search-input:focus { border-color: var(--blue); }
-  .search-input::placeholder { color: var(--text-muted); }
-
-  /* ── Reset Button ── */
-  .reset-btn {
-    padding: 8px 16px;
-    border: 1px solid var(--red);
-    border-radius: 20px;
-    background: transparent;
-    color: var(--red);
-    font-family: 'Outfit', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-    margin-left: auto;
-  }
-
-  .reset-btn:hover { background: var(--red); color: white; }
-
-  /* ── Export ── */
-  .export-bar {
-    display: flex;
-    gap: 10px;
-    margin-top: 1rem;
-  }
-
-  .export-btn {
-    padding: 8px 18px;
-    border: 1px solid var(--border);
-    border-radius: var(--radius-sm);
-    background: var(--bg-card);
-    color: var(--text);
-    font-family: 'Outfit', sans-serif;
-    font-size: 13px;
-    font-weight: 500;
-    cursor: pointer;
-    transition: var(--transition);
-  }
-
-  .export-btn:hover { border-color: var(--green); color: var(--green); }
-
-  /* ── Toast ── */
-  .toast {
-    position: fixed;
-    bottom: 24px;
-    right: 24px;
-    padding: 14px 24px;
-    background: var(--green);
-    color: white;
-    border-radius: var(--radius-sm);
-    font-weight: 600;
-    font-size: 14px;
-    box-shadow: 0 8px 32px rgba(16,185,129,0.3);
-    transform: translateY(100px);
-    opacity: 0;
-    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-    z-index: 1000;
-  }
-
-  .toast.show { transform: translateY(0); opacity: 1; }
 
   /* ── Responsive ── */
   @media (max-width: 768px) {
-    .header { padding: 0 1rem; }
-    .main { padding: 1rem; }
-    .header-stats { gap: 16px; }
-    .header-stat-value { font-size: 18px; }
-    .overview { grid-template-columns: repeat(2, 1fr); }
-    .phase-header { flex-wrap: wrap; }
-    .phase-desc { margin-left: 0; }
+    .header-inner { height: 60px; }
+    .content { padding: 1rem; }
+    .overview { grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
+    .prompt-modal { max-width: 100%; border-radius: 12px; max-height: 90vh; }
+    .prompt-code { font-size: 0.72rem; padding: 16px; }
   }
 </style>
 </head>
 <body>
+<div class="app">
 
-<div class="app" id="app">
-  <header class="header">
+  <!-- ── Header ── -->
+  <div class="header">
     <div class="header-inner">
       <div class="logo">
         <div class="logo-icon">⚽</div>
-        <div class="logo-text">Football <span>Manager</span> — Proje Takip</div>
+        <div class="logo-text">Football <span>Manager</span> Tracker</div>
       </div>
       <div class="header-stats">
-        <div class="header-stat">
-          <div class="header-stat-value" id="stat-done" style="color:var(--green)">0</div>
-          <div class="header-stat-label">Tamamlanan</div>
+        <div class="h-stat">
+          <div class="h-stat-val"><span id="stat-done">0</span> / <span id="stat-total">0</span></div>
+          <div class="h-stat-lbl">Görev</div>
         </div>
-        <div class="header-stat">
-          <div class="header-stat-value" id="stat-total">0</div>
-          <div class="header-stat-label">Toplam Görev</div>
-        </div>
-        <div class="header-stat">
-          <div class="header-stat-value" id="stat-pct" style="color:var(--blue)">0%</div>
-          <div class="header-stat-label">İlerleme</div>
+        <div class="h-stat">
+          <div class="h-stat-val" id="stat-pct">0%</div>
+          <div class="h-stat-lbl">Tamamlanan</div>
         </div>
       </div>
     </div>
-  </header>
+  </div>
 
-  <main class="main">
-    <!-- Overview cards inserted by JS -->
+  <div class="content">
+    <!-- ── Overview ── -->
     <div class="overview" id="overview"></div>
 
-    <!-- Filter -->
-    <div class="filter-bar" id="filter-bar">
-      <button class="filter-btn active" data-filter="all">Tümü</button>
-      <button class="filter-btn" data-filter="todo">Yapılacak</button>
-      <button class="filter-btn" data-filter="done">Tamamlanan</button>
-      <div class="filter-sep"></div>
-      <input type="text" class="search-input" id="search" placeholder="Görev ara...">
-      <button class="reset-btn" id="reset-btn">Sıfırla</button>
-    </div>
-
-    <!-- Phases inserted by JS -->
-    <div id="phases-container"></div>
-
-    <!-- Notes -->
-    <div class="notes-section">
-      <h2 style="font-size:20px; font-weight:700; margin-bottom:12px;">📝 Notlar</h2>
-      <textarea class="notes-area" id="notes" placeholder="Proje notlarını buraya yaz..."></textarea>
-      <div class="export-bar">
-        <button class="export-btn" id="export-json">📦 JSON Dışa Aktar</button>
-        <button class="export-btn" id="import-json">📥 JSON İçe Aktar</button>
+    <!-- ── Toolbar ── -->
+    <div class="toolbar">
+      <input class="search-box" type="text" placeholder="🔍 Görev ara..." oninput="searchQuery=this.value; render()">
+      <div class="filter-btns">
+        <button class="filter-btn active" onclick="setFilter('all', this)">Tümü</button>
+        <button class="filter-btn" onclick="setFilter('todo', this)">Yapılacak</button>
+        <button class="filter-btn" onclick="setFilter('done', this)">Tamamlanan</button>
+      </div>
+      <div class="io-btns">
+        <button class="io-btn" onclick="exportJSON()">📤 Dışa Aktar</button>
+        <button class="io-btn" onclick="importJSON()">📥 İçe Aktar</button>
+        <button class="io-btn" onclick="resetAll()">🔄 Sıfırla</button>
       </div>
     </div>
-  </main>
+
+    <!-- ── Phases ── -->
+    <div id="phases-container"></div>
+
+    <!-- ── Notes ── -->
+    <div class="notes-section">
+      <div class="notes-title">📝 Notlar</div>
+      <textarea class="notes-area" placeholder="Proje notlarını buraya yazabilirsin..." oninput="state.notes=this.value; saveState()" id="notes-area"></textarea>
+    </div>
+  </div>
 </div>
 
-<div class="toast" id="toast"></div>
-<input type="file" id="import-file" accept=".json" style="display:none">
+<!-- ── Prompt Modal ── -->
+<div id="prompt-modal" class="prompt-overlay" onclick="if(event.target===this)closePrompt()">
+  <div class="prompt-modal">
+    <div class="prompt-modal-header">
+      <div class="prompt-modal-title" id="prompt-modal-title"></div>
+      <div class="prompt-modal-actions">
+        <button class="prompt-copy-btn" id="prompt-copy-btn" onclick="copyPrompt()">📋 Kopyala</button>
+        <button class="prompt-close-btn" onclick="closePrompt()">✕</button>
+      </div>
+    </div>
+    <div class="prompt-modal-body">
+      <pre class="prompt-code" id="prompt-modal-content"></pre>
+    </div>
+    <div class="prompt-modal-footer">
+      <span class="prompt-footer-hint">💡 "Kopyala" ile prompt'u panoya kopyalayıp Claude'a yapıştırabilirsin</span>
+    </div>
+  </div>
+</div>
+
+<!-- ═══ Hidden Prompt Data ═══ -->
+<textarea id="prompt-0-1" data-title="PROMPT 0.1 — Geliştirme Ortamı Kurulumu" style="display:none">Football Manager oyun projesi için geliştirme ortamını kur.
+
+GitHub repo: https://github.com/thorrangonak/football-manager
+Repo zaten oluşturuldu ve şu yapı mevcut:
+- src/shared, src/engine, src/services, src/bot, src/api, src/jobs, src/socket
+- prisma/, web/
+- package.json, tsconfig.json, docker-compose.yml, .env.example
+
+Şimdi yapılacaklar:
+
+1. **package.json'ı güncelle** — Tüm bağımlılıkları ekle:
+   - Runtime: dotenv, zod
+   - Bot: grammy
+   - DB: @prisma/client, ioredis
+   - API: express, cors, socket.io
+   - Queue: bullmq
+   - Cron: node-cron
+   - Logger: winston
+   - Utils: uuid
+   - DevDeps: typescript, tsx, prisma, @types/*, eslint, prettier
+
+2. **ESLint + Prettier konfigürasyonu oluştur:**
+   - .eslintrc.json (TypeScript kuralları, import sıralaması)
+   - .prettierrc (singleQuote, semi, tabWidth: 2, printWidth: 100)
+
+3. **tsconfig.json'ı güncelle:**
+   - Path alias'ları: @shared/*, @engine/*, @bot/*, @api/*, @services/*, @jobs/*
+   - Strict mode, ES2022 target
+
+4. **src/shared/config.ts** oluştur:
+   - .env'den tüm değişkenleri oku (zod ile validasyon)
+   - DATABASE_URL, REDIS_URL, BOT_TOKEN, API_PORT, JWT_SECRET vb.
+   - Eksik değişken varsa hata fırlat
+
+5. **src/shared/logger.ts** oluştur:
+   - Winston logger: console + file transport
+   - Log seviyeleri: error, warn, info, debug
+   - Timestamp formatı, JSON formatında dosyaya yaz
+
+6. **src/shared/types.ts** oluştur:
+   - Temel TypeScript tipleri ve enum'lar:
+     - Position enum: GK, CB, LB, RB, CDM, CM, CAM, LW, RW, ST, WB
+     - Formation enum: F442, F433, F352, F532, F451, F343
+     - Tactic enum: ATTACK, BALANCED, DEFENSIVE, ALL_OUT_ATTACK
+     - MatchEventType enum: GOAL, SHOT, FOUL, YELLOW_CARD, RED_CARD, INJURY, CORNER, PENALTY, SUBSTITUTION
+     - MatchStatus enum: SCHEDULED, LIVE, FINISHED, CANCELLED
+     - LeagueType enum: A_LEAGUE, B_LEAGUE
+
+Tüm dosyaları oluştur ve çalıştığını doğrula.</textarea>
+<textarea id="prompt-0-2" data-title="PROMPT 0.2 — Altyapı Servisleri (DB + Redis + Queue)" style="display:none">Football Manager projesi için altyapı servislerini kur.
+
+Mevcut dosyalar: src/shared/config.ts, src/shared/logger.ts, src/shared/types.ts
+Docker servisleri: docker-compose.yml (PostgreSQL 16 + Redis 7) hazır.
+
+Şimdi yapılacaklar:
+
+1. **Prisma ORM kurulumu:**
+   - prisma/schema.prisma dosyasını oluştur
+   - Şimdilik sadece datasource ve generator tanımla
+   - Modelleri henüz ekleme (Faz 1'de eklenecek)
+   - src/shared/database.ts: PrismaClient singleton instance
+   - Bağlantı testi fonksiyonu
+
+2. **Redis bağlantısı:**
+   - src/shared/redis.ts: ioredis ile Redis bağlantısı
+   - Singleton pattern
+   - Bağlantı/disconnection event handler'ları
+   - Cache helper fonksiyonları: get, set (TTL destekli), del, exists
+
+3. **BullMQ kurulumu:**
+   - src/jobs/queue.ts: Match queue tanımı
+   - src/jobs/worker.ts: Temel worker yapısı (boş processor, ileride maç simülasyonu eklenecek)
+   - Queue bağlantı testi
+
+4. **src/index.ts — Ana giriş noktası:**
+   - Tüm servislerin başlatılması (DB, Redis, BullMQ, Bot, API)
+   - Graceful shutdown handler (SIGINT, SIGTERM)
+   - Startup log mesajları
+
+5. **Bağlantı testleri:**
+   - Docker compose up yapılınca tüm servislerin bağlanabildiğini doğrulayan test script
+   - npm run dev ile başlatıldığında "✅ PostgreSQL connected", "✅ Redis connected", "✅ BullMQ ready" logları
+
+Her dosyada hata yakalama ve retry mekanizması olsun.</textarea>
+<textarea id="prompt-0-3" data-title="PROMPT 0.3 — Telegram Bot Temel Kurulum" style="display:none">Football Manager projesi için Telegram bot'unun temel yapısını kur.
+
+Mevcut: src/shared/config.ts (BOT_TOKEN), src/shared/logger.ts
+Kullanılacak framework: grammy
+
+Şimdi yapılacaklar:
+
+1. **src/bot/index.ts — Bot ana dosyası:**
+   - grammy Bot instance oluştur (config.BOT_TOKEN ile)
+   - Session middleware (in-memory veya Redis-based)
+   - Error handler middleware (hataları logla, kullanıcıya "Bir hata oluştu" mesajı)
+   - Logger middleware (her gelen mesajı logla: user_id, command, timestamp)
+
+2. **src/bot/commands/start.ts:**
+   - /start komutu handler
+   - Şimdilik basit bir hoş geldin mesajı gönder:
+     "⚽ Football Manager'a Hoş Geldin!
+      Kendi futbol takımını kur, antrenman yap, transfer yap ve şampiyon ol!
+      Kayıt olmak için takım ismini yaz:"
+   - Kullanıcı metin girdiğinde "Takımın [İsim] oluşturuldu!" yanıtı (DB kaydı Faz 1'de)
+
+3. **src/bot/keyboards/mainMenu.ts:**
+   - Ana menü inline keyboard:
+     [⚽ Kadro] [📊 Lig Tablosu]
+     [🏋️ Antrenman] [💰 Transfer]
+     [👤 Profil] [⚙️ Ayarlar]
+   - Her buton callback_data tanımı
+
+4. **src/bot/middleware/auth.ts:**
+   - Kullanıcının kayıtlı olup olmadığını kontrol eden middleware
+   - Kayıtlı değilse /start'a yönlendir
+
+5. **Bot'u src/index.ts'e entegre et:**
+   - Bot.start() ile polling başlat
+   - Graceful stop ekle
+
+Bot'u başlat, /start komutunu test et, inline keyboard'un görünmesini sağla.</textarea>
+<textarea id="prompt-1-1" data-title="PROMPT 1.1 — Veritabanı Şeması (Prisma)" style="display:none">Football Manager projesi için Prisma veritabanı şemasını oluştur.
+
+Dosya: prisma/schema.prisma
+
+Aşağıdaki modelleri tanımla:
+
+1. **User:**
+   - id: Int @id @default(autoincrement())
+   - tgId: BigInt @unique (Telegram user ID)
+   - username: String? (TG username)
+   - level: Int @default(1)
+   - xp: Int @default(0)
+   - coins: Int @default(50000)
+   - isNewPlayer: Boolean @default(true) (ilk 2 hafta koruma)
+   - newPlayerUntil: DateTime? (koruma süresi)
+   - lastDailyReward: DateTime? (günlük ödül)
+   - notificationPrefs: Json? (bildirim tercihleri)
+   - createdAt: DateTime @default(now())
+   - updatedAt: DateTime @updatedAt
+   - İlişkiler: team (1-1), transactions
+
+2. **Team:**
+   - id: Int @id @default(autoincrement())
+   - userId: Int @unique
+   - name: String @unique (takım adı, max 30 karakter)
+   - formation: String @default("F442") (Formation enum)
+   - tactic: String @default("BALANCED") (Tactic enum)
+   - powerRating: Float @default(0) (ortalama overall)
+   - stadiumLevel: Int @default(1)
+   - stadiumMaintained: Boolean @default(true)
+   - createdAt: DateTime @default(now())
+   - İlişkiler: user, players[], leagueTeams[], homeMatches[], awayMatches[], transfersFrom[], transfersTo[]
+
+3. **Player (Futbolcu):**
+   - id: Int @id @default(autoincrement())
+   - teamId: Int? (null = serbest oyuncu)
+   - name: String
+   - age: Int (17-38)
+   - position: String (Position enum)
+   - altPosition: String? (alternatif pozisyon)
+   - isStarter: Boolean @default(false) (ilk 11'de mi)
+   - jerseyNumber: Int?
+
+   // 7 Ana Stat (1-99)
+   - speed: Float @default(50)
+   - shooting: Float @default(50)
+   - passing: Float @default(50)
+   - dribbling: Float @default(50)
+   - defense: Float @default(50)
+   - physical: Float @default(50)
+   - goalkeeping: Float @default(50)
+
+   // Overall
+   - overall: Float @default(50) (pozisyona göre ağırlıklı hesaplama)
+
+   // Dinamik Statlar
+   - morale: Float @default(70) (0-100)
+   - form: Float @default(50) (son 5 maç ortalaması)
+   - fitness: Float @default(100) (kondisyon, 0-100)
+   - injuryDuration: Int @default(0) (kalan sakatlık süresi, maç sayısı)
+   - suspendedUntil: Int @default(0) (cezalı maç sayısı)
+   - yellowCards: Int @default(0) (sezon toplam sarı)
+
+   // Ekonomi
+   - marketValue: Int @default(10000)
+   - salary: Int @default(200)
+
+   // Antrenman
+   - lastTrainingAt: DateTime?
+   - trainingCooldownUntil: DateTime?
+
+   - createdAt: DateTime @default(now())
+   - İlişkiler: team, matchEvents[], goalsScoredIn[], assistsIn[]
+
+4. **League:**
+   - id: Int @id @default(autoincrement())
+   - name: String (örn: "A Ligi", "B Ligi")
+   - type: String (A_LEAGUE / B_LEAGUE)
+   - seasonId: Int
+   - status: String @default("ACTIVE") (ACTIVE, FINISHED, TRANSFER_WINDOW)
+   - İlişkiler: season, leagueTeams[], matches[]
+
+5. **LeagueTeam (Lig-Takım bağlantısı):**
+   - id: Int @id @default(autoincrement())
+   - leagueId: Int
+   - teamId: Int
+   - played: Int @default(0)
+   - wins: Int @default(0)
+   - draws: Int @default(0)
+   - losses: Int @default(0)
+   - goalsFor: Int @default(0)
+   - goalsAgainst: Int @default(0)
+   - points: Int @default(0)
+   - @@unique([leagueId, teamId])
+
+6. **Match:**
+   - id: Int @id @default(autoincrement())
+   - leagueId: Int?
+   - seasonId: Int?
+   - homeTeamId: Int
+   - awayTeamId: Int
+   - scheduledAt: DateTime
+   - status: String @default("SCHEDULED")
+   - homeScore: Int @default(0)
+   - awayScore: Int @default(0)
+   - matchWeek: Int?
+   - isFriendly: Boolean @default(false)
+   - matchData: Json? (detaylı maç istatistikleri)
+   - İlişkiler: league, homeTeam, awayTeam, events[]
+
+7. **MatchEvent:**
+   - id: Int @id @default(autoincrement())
+   - matchId: Int
+   - tick: Int (0-59)
+   - minute: Int (1-90)
+   - type: String (MatchEventType enum)
+   - teamId: Int?
+   - playerId: Int?
+   - secondPlayerId: Int? (asist yapan, faul yapılan vb.)
+   - detail: Json? (ek bilgi)
+   - commentary: String? (Türkçe yorum)
+
+8. **Transfer:**
+   - id: Int @id @default(autoincrement())
+   - playerId: Int
+   - fromTeamId: Int?
+   - toTeamId: Int?
+   - price: Int
+   - status: String @default("PENDING") (PENDING, ACCEPTED, REJECTED, EXPIRED)
+   - expiresAt: DateTime?
+   - createdAt: DateTime @default(now())
+
+9. **Season:**
+   - id: Int @id @default(autoincrement())
+   - number: Int (sezon numarası)
+   - startDate: DateTime
+   - endDate: DateTime
+   - status: String @default("ACTIVE")
+   - İlişkiler: leagues[], matches[]
+
+10. **Transaction (Para hareketleri):**
+    - id: Int @id @default(autoincrement())
+    - userId: Int
+    - amount: Int (pozitif = gelir, negatif = gider)
+    - type: String (MATCH_WIN, MATCH_DRAW, MATCH_LOSS, SALARY, TRAINING, TRANSFER_BUY, TRANSFER_SELL, DAILY_REWARD, LEVEL_UP, SEASON_PRIZE, STADIUM, MEDICAL)
+    - description: String?
+    - createdAt: DateTime @default(now())
+
+Her modelde gerekli indexleri ekle (@index). İlişkilerde onDelete kurallarını belirle.
+Migration oluştur ve çalıştır: npx prisma migrate dev --name init
+Ardından npx prisma generate çalıştır.</textarea>
+<textarea id="prompt-1-2" data-title="PROMPT 1.2 — Oyuncu Oluşturma Motoru" style="display:none">Football Manager projesi için futbolcu oluşturma motorunu yaz.
+
+Dosya: src/engine/playerGenerator.ts
+
+Mevcut: prisma/schema.prisma (Player modeli), src/shared/types.ts (Position enum)
+
+Kurallar (Game Design Document'tan):
+
+**Pozisyona Göre Stat Dağılımı (ağırlıklı rastgele):**
+Her pozisyonun "güçlü" statları var, bunlar daha yüksek üretilir.
+- GK: goalkeeping ×2.0, physical ×1.3, defense ×1.2
+- CB: defense ×2.0, physical ×1.5, speed ×0.8
+- LB/RB: speed ×1.5, defense ×1.3, passing ×1.2
+- CDM: defense ×1.5, passing ×1.3, physical ×1.3
+- CM: passing ×1.8, dribbling ×1.2, shooting ×1.0
+- CAM: passing ×1.5, dribbling ×1.5, shooting ×1.3
+- LW/RW: speed ×1.8, dribbling ×1.5, shooting ×1.0
+- ST: shooting ×2.0, speed ×1.3, dribbling ×1.2
+- WB: speed ×1.5, defense ×1.2, passing ×1.2, physical ×1.2
+
+Fonksiyonlar:
+
+1. **generatePlayer(options):**
+   - options: { position, minOvr?, maxOvr?, age? }
+   - Base stat üret: minOvr-maxOvr aralığında hedef overall
+   - Pozisyon ağırlıklarına göre 7 stat'ı dağıt
+   - Her stat 1-99 arasında clamp et
+   - Yaş: verilmezse rastgele 17-33 (ağırlıklı: 20-28 daha olası)
+   - İsim: rastgele Türkçe isim havuzundan
+
+2. **calculateOverall(player, position):**
+   Pozisyona göre ağırlıklı ortalama:
+   - GK: REF×0.45 + PHY×0.20 + DEF×0.15 + SPD×0.10 + PAS×0.10
+   - CB: DEF×0.35 + PHY×0.25 + SPD×0.15 + PAS×0.15 + SHT×0.10
+   - LB/RB: SPD×0.25 + DEF×0.25 + PAS×0.20 + PHY×0.15 + DRB×0.15
+   - CDM: DEF×0.30 + PAS×0.25 + PHY×0.25 + SPD×0.10 + DRB×0.10
+   - CM: PAS×0.30 + DRB×0.20 + SHT×0.15 + DEF×0.15 + PHY×0.10 + SPD×0.10
+   - CAM: PAS×0.25 + DRB×0.25 + SHT×0.25 + SPD×0.15 + PHY×0.10
+   - LW/RW: SPD×0.30 + DRB×0.25 + SHT×0.20 + PAS×0.15 + PHY×0.10
+   - ST: SHT×0.35 + SPD×0.20 + DRB×0.20 + PHY×0.15 + PAS×0.10
+   - WB: SPD×0.20 + DEF×0.20 + PAS×0.20 + PHY×0.20 + DRB×0.20
+
+3. **calculateMarketValue(player):**
+   - Base: overall² × 15
+   - Yaş çarpanı: 17-21 → ×1.4, 22-27 → ×1.0, 28-30 → ×0.7, 31-33 → ×0.4, 34+ → ×0.2
+   - Form bonus: (form / 50) çarpanı
+
+4. **calculateSalary(marketValue):**
+   - marketValue × 0.02 (haftalık)
+
+5. **generateStarterPack():**
+   - 18 futbolcu üret:
+     - 2 GK (1 starter)
+     - 2 CB (2 starter) + 1 yedek CB
+     - 1 LB (starter) + 1 RB (starter)
+     - 2 CM (starter) + 1 CDM (starter)
+     - 1 CAM (yedek)
+     - 1 LW (starter) + 1 RW (starter)
+     - 2 ST (1 starter, 1 yedek)
+     - 1 WB (yedek)
+   - OVR aralığı: 45-60
+   - 1 yıldız oyuncu: 65-70 OVR garantisi (rastgele pozisyon)
+   - Forma numaraları: 1-18 ata
+
+6. **TÜRKÇE İSİM HAVUZU:**
+   - En az 100 isim, 100 soyisim
+   - Rastgele isim + soyisim kombinasyonu
+   - Aynı takımda aynı isimde 2 oyuncu olmasın
+
+Tüm fonksiyonları export et ve test için bir test script (src/engine/__tests__/playerGenerator.test.ts) yaz:
+- 18 kişilik starter pack üret, overall'ların 45-70 arasında olduğunu doğrula
+- Her pozisyon tipinden en az 1 oyuncu olduğunu doğrula</textarea>
+<textarea id="prompt-1-3" data-title="PROMPT 1.3 — Telegram Bot: Kayıt, Takım, Kadro Yönetimi" style="display:none">Football Manager projesi için Telegram bot'unun kayıt ve takım yönetim komutlarını yaz.
+
+Mevcut: Prisma modelleri, playerGenerator.ts, bot temel yapısı (grammy)
+
+Komutlar:
+
+1. **/start — Kayıt:**
+   - DB'de user var mı kontrol et (tgId ile)
+   - Yoksa: "⚽ Hoş geldin! Takımına bir isim ver:" → conversation/session ile isim al
+   - İsim gelince:
+     - User oluştur (coins: 50000)
+     - Team oluştur (verilen isim)
+     - generateStarterPack() ile 18 futbolcu oluştur ve team'e ata
+     - Takım power_rating'ini hesapla
+     - Hoş geldin mesajı + ana menü keyboard göster
+   - Zaten kayıtlıysa: "Zaten bir takımın var: [Takım Adı]" + ana menü
+
+2. **/kadro — Kadro Görüntüleme:**
+   - Mevcut formasyon göster (örn: "📋 4-4-2")
+   - İlk 11'i pozisyonlarına göre sıralı listele:</textarea>
+<textarea id="prompt-1-4" data-title="PROMPT 1.4 — Maç Simülasyon Motoru" style="display:none">Football Manager projesi için maç simülasyon motorunu yaz.
+
+Dosya: src/engine/matchEngine.ts
+
+Bu projenin KALBİ — en önemli ve dikkatli yazılması gereken dosya.
+
+**GENEL YAPI:**
+- 60 tick = 1 maç = 90 oyun dakikası (1 tick = 1 saniye gerçek süre = 1.5 dk oyun)
+- Her tick'te %35 olay şansı
+- Sonuç: Match nesnesi (skor, olaylar listesi, istatistikler)
+
+**SINIFLAR VE FONKSİYONLAR:**
+
+1. **MatchEngine class:**
+
+   constructor(homeTeam: MatchTeam, awayTeam: MatchTeam, matchId: number)
+
+   **MatchTeam tipi:**</textarea>
+<textarea id="prompt-1-5" data-title="PROMPT 1.5 — Lig Sistemi &amp; Fikstür" style="display:none">Football Manager projesi için lig sistemi ve fikstür oluşturma motorunu yaz.
+
+Dosyalar:
+- src/engine/leagueManager.ts
+- src/engine/fixtureGenerator.ts
+- src/services/leagueService.ts
+
+**1. Fikstür Oluşturma (Round-Robin):**
+
+   function generateFixtures(teamIds: number[]): Fixture[][]
+
+   - Round-robin algoritması: Her takım birbirine 1 kez maç
+   - N takım varsa N-1 hafta, her hafta N/2 maç
+   - Tek sayı takım varsa bye sistemi (o hafta maçı yok)
+   - Ev/deplasman dengeli olsun (mümkün olduğunca eşit)
+   - Return tipi: Fixture[][] (hafta bazlı gruplanmış)</textarea>
+<textarea id="prompt-2-1" data-title="PROMPT 2.1 — Ekonomi Sistemi" style="display:none">Football Manager projesi için ekonomi sistemini yaz.
+
+Dosyalar:
+- src/services/economyService.ts
+- src/services/transactionService.ts
+
+**EconomyService class:**
+
+1. **addCoins(userId, amount, type, description):**
+   - User.coins += amount
+   - Transaction kaydı oluştur
+   - Return: yeni bakiye
+
+2. **removeCoins(userId, amount, type, description):**
+   - Bakiye kontrolü: coins &gt;= amount
+   - Yetersiz bakiye → hata fırlat
+   - User.coins -= amount
+   - Transaction kaydı oluştur
+
+3. **processMatchReward(userId, result: 'WIN' | 'DRAW' | 'LOSS'):**
+   - WIN: +5000, DRAW: +2000, LOSS: +500
+   - Yeni oyuncu koruması varsa (isNewPlayer &amp;&amp; kaybettiyse): ekstra +2000
+
+4. **processWeeklySalaries():**
+   - Tüm aktif takımlar için:
+     - Toplam maaş = takımdaki tüm oyuncuların salary toplamı
+     - coins &gt;= toplamMaaş → öde
+     - coins &lt; toplamMaaş → ÖDEME YAPILAMADI:
+       - Tüm oyunculara moral -30
+       - Log ve bildirim oluştur
+
+5. **processStadiumMaintenance():**
+   - Her takımdan haftalık 5000 coin
+   - Ödenirse: stadiumMaintained = true (ev avantajı aktif)
+   - Ödenmezse: stadiumMaintained = false (ev avantajı iptal)
+
+6. **processDailyReward(userId):**
+   - Son ödül tarihi kontrol: aynı gün mü?
+   - Değilse: +1000 coin, lastDailyReward güncelle
+   - Aynı günse: "Bugün zaten ödülünü aldın!"
+
+7. **processSeasonPrize(userId, rank, leagueType):**
+   - A Ligi: 1. → 100K, 2. → 60K, 3. → 35K, diğer → 10K
+   - B Ligi: 1. → 50K, 2. → 30K, 3. → 20K, diğer → 5K
+
+8. **processLevelUp(userId, newLevel):**
+   - Ödül: 5000 × newLevel
+
+**Bot Komutları:**
+- /bakiye: Mevcut coin göster + son 10 işlem
+- /gunluk: Günlük ödül al
+- /gelir: Son 7 günlük gelir/gider özeti
+
+**Cron Job (src/jobs/weeklyCron.ts):**
+- Her Pazartesi 00:00: processWeeklySalaries() + processStadiumMaintenance()</textarea>
+<textarea id="prompt-2-2" data-title="PROMPT 2.2 — Transfer Pazarı" style="display:none">Football Manager projesi için transfer pazarı sistemini yaz.
+
+Dosyalar:
+- src/services/transferService.ts
+- src/bot/commands/transfer.ts
+- src/bot/handlers/transferHandler.ts
+
+**TransferService class:**
+
+1. **listMarketPlayers(filters?):**
+   - Sistem tarafından üretilmiş NPC futbolcular (teamId = null)
+   - Her gün 5-10 yeni NPC oyuncu üretilir (cron)
+   - Filtreleme: pozisyon, min/max OVR, max fiyat
+   - Fiyat = marketValue × (1 + talep çarpanı)
+
+2. **buyFromMarket(userId, playerId):**
+   - Oyuncu kontrolü: teamId == null (satışta mı?)
+   - Bakiye kontrolü
+   - Kadro limiti: max 25 oyuncu
+   - Para kes, oyuncuyu takıma ata
+   - Transfer kaydı oluştur
+
+3. **sendTransferOffer(fromUserId, toPlayerId, offerPrice):**
+   - Oyuncu sahibi kontrolü
+   - Teklif fiyat kontrolü: min %50 marketValue (altı → blok, anti-abuse)
+   - Yeni oyuncu ilk hafta transfer engeli kontrolü
+   - Aynı 2 kullanıcı arasında günde max 1 transfer kontrolü
+   - Transfer güçlü ligden zayıf lige: +%50 vergi
+   - Transfer kaydı: status=PENDING, expiresAt=24 saat sonra
+   - Karşı tarafa bildirim gönder
+
+4. **acceptOffer(transferId, userId):**
+   - Transfer sahibi mi kontrol
+   - Bakiye kontrolü (alıcının)
+   - Para transfer: alıcı → satıcı
+   - Oyuncu team değiştir
+   - Her iki taraf bildirim
+
+5. **rejectOffer(transferId, userId):**
+   - Status = REJECTED
+   - Teklif sahibine bildirim
+
+6. **sellPlayer(userId, playerId, price):**
+   - Min 11 oyuncu kontrolü (11'den az satamaz)
+   - Oyuncuyu serbest bırak (teamId = null, pazara düşür)
+   - Para ekle
+
+7. **expireTransfers():**
+   - Cron: 24 saati geçmiş PENDING transferleri EXPIRED yap
+
+**Anti-Abuse Kuralları:**
+- Piyasa değerinin %50 altına satış/teklif → otomatik blok + uyarı
+- Aynı 2 kişi arasında günde max 1 transfer
+- Yeni oyuncu ilk 7 gün transfer yapamaz
+- Güçlü ligden zayıf lige transfer: +%50 vergi
+
+**Bot — /transfer komutu:**
+- Ana menü:
+  [🛒 Pazar] [📤 Sat] [📨 Tekliflerim] [📩 Gelen Teklifler]
+
+- Pazar: Pozisyon filtreli oyuncu listesi, sayfalı, "Satın Al" butonu
+- Sat: Kendi oyuncularından seç, fiyat belirle
+- Tekliflerim: Gönderdiğim teklifler (bekleyen/kabul/red)
+- Gelen Teklifler: Bana gelen teklifler → [✅ Kabul] [❌ Red]</textarea>
+<textarea id="prompt-2-3" data-title="PROMPT 2.3 — Antrenman &amp; Gelişim Sistemi" style="display:none">Football Manager projesi için antrenman ve gelişim sistemini yaz.
+
+Dosyalar:
+- src/services/trainingService.ts
+- src/engine/developmentEngine.ts
+- src/bot/commands/training.ts
+
+**Antrenman Tipleri:**
+
+| Tip | Maliyet | Etki | Cooldown | Yan Etki |
+|-----|---------|------|----------|----------|
+| Kondisyon Kampı | 500 | Kondisyon +30 | 12 saat | — |
+| Teknik Antrenman | 2000 | Seçilen stat +0.5 | 24 saat | Kondisyon -5 |
+| Fizik Antrenmanı | 2000 | PHY +0.5, SPD +0.3 | 24 saat | Kondisyon -10 |
+| Yoğun Kamp | 5000 | Seçilen stat +1.0 | 36 saat | Kondisyon -20 |
+| Elit Kamp | 10000 | 2 seçilen stat +1.0 | 48 saat | Kondisyon -25 |
+
+**Yaş Bazlı Gelişim Çarpanı:**
+- 17-21: ×1.5
+- 22-27: ×1.0
+- 28-30: ×0.6
+- 31-33: ×0.3
+- 34-36: ×0.0 (gelişim duraklar)
+- 37-38: ×-0.3 (gerileme, stat düşüşü)
+
+**Catchup Mekanizması (Düşük OVR hızlı gelişir):**
+- OVR 40-55: ×2.0
+- OVR 56-65: ×1.5
+- OVR 66-75: ×1.0
+- OVR 76-85: ×0.7
+- OVR 86-99: ×0.4
+
+**TrainingService:**
+
+1. **trainPlayer(userId, playerId, trainingType, targetStat?):**
+   - Cooldown kontrolü (lastTrainingAt + cooldown &gt; now → ret)
+   - Bakiye kontrolü
+   - Sakatlık kontrolü (sakatken antrenman yapılamaz)
+   - Gelişim hesapla:
+     statGain = baseGain × ageMultiplier × catchupMultiplier × (coachBonus || 1.0)
+   - Stat güncelle (max 99, min 1)
+   - Overall yeniden hesapla
+   - Piyasa değeri yeniden hesapla
+   - Kondisyon düşür
+   - Cooldown başlat
+   - Para kes
+   - XP ekle: 50 × trainingType seviyesi
+
+2. **processPassiveDevelopment(playerId, matchStats):**
+   - Maç sonrası otomatik (her maç oynayan oyuncuya):
+   - Rastgele 1-2 stat seç
+   - +0.1 ile +0.3 arası gelişim (yaş/catchup çarpanı uygulanır)
+   - Özel kurallar:
+     - Gol atan ST/CAM → SHT +0.2
+     - Asist yapan → PAS +0.2
+     - Clean sheet GK → REF +0.2
+     - Clean sheet CB → DEF +0.2
+
+3. **processAging(seasonEnd):**
+   - Sezon sonunda tüm oyuncuların yaşı +1
+   - 34+ oyuncular: rastgele 2-3 stat'ta -0.5 ile -1.0 arası gerileme
+   - 37+ oyuncular: daha sert gerileme (-1.0 ile -2.0)
+   - Emeklilik: 38 yaşını geçen oyuncular emekli olabilir (%30 şans)
+
+**Antrenör Sistemi:**
+
+| Antrenör | Maliyet | Süre | Bonus | Ekstra |
+|----------|---------|------|-------|--------|
+| Bronz | 10.000 | 7 gün | +%20 antrenman | — |
+| Gümüş | 25.000 | 7 gün | +%40 antrenman | — |
+| Altın | 50.000 | 7 gün | +%60 antrenman | Sakatlık riski -%20 |
+
+4. **hireCoach(userId, tier: 'bronze'|'silver'|'gold'):**
+   - Bakiye kontrol, para kes
+   - Coach kaydı: tier, expiresAt = now + 7 gün
+   - Antrenman hesaplamalarında bonus uygula
+
+**Bot — /antrenman komutu:**
+- Oyuncu seç (inline keyboard, sayfalı)
+- Antrenman tipi seç
+- Teknik/Yoğun/Elit için stat seç (SPD/SHT/PAS/DRB/DEF/PHY/REF)
+- Onay: "[Oyuncu] için [Antrenman] yapılsın mı? 💰 [Maliyet]"
+- Sonuç: "✅ [Oyuncu]: SPD 62.3 → 63.1 (+0.8)"</textarea>
+<textarea id="prompt-2-4" data-title="PROMPT 2.4 — Seviye Sistemi" style="display:none">Football Manager projesi için seviye ve XP sistemini yaz.
+
+Dosya: src/services/levelService.ts
+
+**XP Kazanma Kuralları:**
+| Aksiyon | XP |
+|---------|-----|
+| Maç oyna (sonuç fark etmez) | +100 |
+| Maç kazan | +200 |
+| Maç berabere | +100 |
+| Gol at (her gol) | +50 |
+| Clean sheet | +150 |
+| Antrenman yap | +50 |
+| Günlük giriş | +25 |
+| Transfer yap (al veya sat) | +75 |
+| Rehberi tamamla | +500 |
+
+**Seviye Formülü:**
+- requiredXP(level) = 1000 × level × (1 + level × 0.1)
+- Seviye 1→2: 1100 XP
+- Seviye 5→6: 8000 XP
+- Seviye 10→11: 21000 XP
+
+**Seviye Atlama Ödülleri:**
+- Coin: 5000 × newLevel
+- Her 5 seviyede bonus: Ücretsiz Yoğun Kamp hakkı
+
+**LevelService:**
+1. addXP(userId, amount, source): XP ekle, seviye kontrolü yap
+2. checkLevelUp(userId): XP yeterliyse seviye atla, ödül ver
+3. getLevelInfo(userId): Mevcut seviye, XP, sonraki seviyeye kalan
+
+**Bot — /profil komutu:**</textarea>
+<textarea id="prompt-3-1" data-title="PROMPT 3.1 — Sezon Döngüsü &amp; Otomatik Zamanlama" style="display:none">Football Manager projesi için sezon döngüsü ve otomatik maç zamanlama sistemini yaz.
+
+Dosyalar:
+- src/services/seasonService.ts
+- src/jobs/matchScheduler.ts
+- src/jobs/cronJobs.ts
+
+**Sezon Yapısı:**
+- 8 hafta toplam: 7 hafta lig + 1 hafta transfer dönemi
+- Haftada 2 maç günü: Çarşamba 20:00, Cuma 20:00
+- Her maç günü aynı anda max 7-8 maç (5'er dk arayla: 20:00, 20:05, 20:10...)
+- Pazar 18:00: Şampiyonlar Ligi (Faz 5'te eklenecek)
+
+**SeasonService:**
+
+1. **startNewSeason():**
+   - Season kaydı oluştur (number++, startDate, endDate)
+   - Takımları liglere dağıt:
+     - A Ligi: Üst takımlar (powerRating sıralaması veya önceki sezon)
+     - B Ligi: Alt takımlar + yeni oyuncular
+     - İlk sezon: Tüm takımlar tek lige (B Ligi gibi davran)
+   - Her lig için fikstür oluştur
+   - Maçları zamanla (Çar+Cum, 20:00'den itibaren 5'er dk)
+   - Tüm LeagueTeam istatistiklerini sıfırla
+   - Duyuru gönder: "🏟️ Sezon [N] başladı!"
+
+2. **endSeason(seasonId):**
+   - Tüm maçlar oynandı mı kontrol
+   - Sıralama finalize
+   - Ödülleri dağıt (SeasonPrize)
+   - Relegation/Promotion:
+     - A Ligi son 2 → B Ligi
+     - B Ligi ilk 2 → A Ligi
+   - İstatistik ödülleri: Gol kralı, asist kralı vb.
+   - Transfer dönemini başlat (1 hafta)
+   - Yaşlandırma: Tüm oyuncuların yaşı +1
+   - Gerileme: 34+ oyuncularda stat düşüşü
+
+3. **startTransferWindow():**
+   - 7 gün serbest transfer dönemi
+   - NPC oyuncu sayısını artır (normalin 2 katı)
+   - Transfer dönemi sonu: otomatik kapat, yeni sezon başlat
+
+**Match Scheduler (BullMQ):**
+
+1. **scheduleMatches():**
+   - Gelecek haftanın maçlarını BullMQ'ya delayed job olarak ekle
+   - Her maç için:
+     - scheduledAt zamanında tetiklenecek job
+     - Job data: matchId, homeTeamId, awayTeamId
+
+2. **processMatch(job):**
+   - Maç verilerini DB'den çek (takımlar, oyuncular, formasyonlar)
+   - Sakatları ve cezalıları çıkar, yedekten tamamla
+   - MatchEngine.simulateMatch() çalıştır
+   - Sonuçları DB'ye kaydet
+   - Lig tablosu güncelle
+   - Ödülleri dağıt
+   - Bildirimleri gönder
+   - Match Tracker eventlerini emit et (Socket.IO, Faz 4'te)
+
+3. **Worker yapısı:**
+   - 3 worker paralel çalışır
+   - Her worker 1 maçı sıralı işler
+   - Maçlar 5'er dakika arayla başlar → çakışma yok
+
+**Cron Jobs (node-cron):**
+
+| Cron | İş | Zaman |
+|------|----|-------|
+| matchReminder1h | Maç 1 saat kala bildirim | Maç saatine göre dinamik |
+| matchReminder10m | Maç 10 dk kala bildirim | Maç saatine göre dinamik |
+| weeklySalaries | Maaş kesimi | Pazartesi 00:00 |
+| stadiumMaintenance | Stadyum bakımı | Pazartesi 00:00 |
+| dailyNPCRefresh | NPC transfer pazarını yenile | Her gün 06:00 |
+| expireTransfers | Süresi dolan transferleri iptal | Her saat başı |
+| fitnessRecovery | Kondisyon toparlanması | Her saat: +3 fitness (max 100) |
+
+Kondisyon toparlanması: Her saat başı tüm oyuncuların fitness'ı +3 artar (max 100).</textarea>
+<textarea id="prompt-3-2" data-title="PROMPT 3.2 — Bildirim Sistemi" style="display:none">Football Manager projesi için Telegram bildirim sistemini yaz.
+
+Dosya: src/services/notificationService.ts
+
+**NotificationService:**
+
+1. **sendToUser(userId, message, keyboard?):**
+   - TG Bot üzerinden DM gönder
+   - Keyboard varsa inline button ekle
+
+2. **sendToLeague(leagueId, message):**
+   - Ligteki tüm oyunculara gönder
+
+3. **Bildirim Türleri:**
+
+   a) **matchReminder(matchId, minutesBefore):**
+      - 60 dk: "⏰ Maçın 1 saat sonra! [Takımın] 🆚 [Rakip] — Kadronuzu kontrol edin!"
+      - 10 dk: "🔔 Maçın 10 dakika sonra başlıyor! [Takımın] 🆚 [Rakip]"
+
+   b) **matchStarted(matchId):**
+      - "▶️ Maç başladı! [Ev] 🆚 [Deplasman] — /canli ile izle!"
+
+   c) **goalScored(matchId, scorerName, score):**
+      - "⚽ GOOOL! [Oyuncu] — [Ev] [skor] [Dep]"
+
+   d) **matchEnded(matchId, result):**
+      - "🏁 Maç Bitti!\n[Ev] [skor] [Dep]\n⚽ Goller: ...\n💰 Kazanç: +5.000"
+
+   e) **transferOffer(fromTeam, toUser, player, price):**
+      - "📨 Transfer Teklifi!\n[Takım] [Oyuncu] için 💰[Fiyat] teklif etti.\n[Kabul] [Red]"
+
+   f) **weeklySalary(userId, totalSalary, success):**
+      - Başarılı: "💰 Haftalık maaşlar ödendi: -[Tutar]"
+      - Başarısız: "⚠️ Maaş ödenemedi! Bakiye yetersiz. Oyuncularınızın morali düştü!"
+
+   g) **injuryNotification(playerId, duration):**
+      - "🏥 [Oyuncu] sakatlandı! [N] maç süreyle oynayamayacak."
+
+   h) **seasonEnd(userId, rank, prize):**
+      - "🏆 Sezon Sonu!\nSıralamanız: #[rank]\nÖdül: 💰[prize]\n[detaylı istatistikler]"
+
+4. **Bildirim Tercihleri:**
+   - User.notificationPrefs JSON alanı:
+     { matchReminders: true, goals: true, results: true, transfers: true, salaries: true }
+   - /ayarlar komutu ile toggle edilebilir
+   - Gönderim öncesi tercih kontrolü yap</textarea>
+<textarea id="prompt-3-3" data-title="PROMPT 3.3 — Yeni Oyuncu Dengeleme (Catchup)" style="display:none">Football Manager projesi için yeni oyuncu koruma ve dengeleme sistemini yaz.
+
+Dosya: src/services/newPlayerService.ts
+
+Kurallar:
+1. İlk 2 hafta (14 gün) koruma kalkanı (User.isNewPlayer, User.newPlayerUntil)
+
+2. Koruma süresince:
+   - Maaşlar %50 indirimli
+   - Antrenman ücretleri %50 indirimli
+   - Mağlubiyet başına ekstra +2.000 teselli ödülü
+   - Rakip eşleştirme: OVR farkı max 10 (fikstürde kontrol)
+
+3. B Ligi ataması: Yeni oyuncular otomatik B Ligi'ne
+
+4. Sezon ortası katılım:
+   - Eğer sezon ortasındaysa: Sonraki sezon başına kadar sadece dostluk maçları
+   - Dostluk maçlardan da XP ve pasif gelişim kazanır
+
+5. Koruma süresi bitince:
+   - isNewPlayer = false
+   - Normal ekonomi kuralları uygulanır
+   - "Koruma kalkanınız sona erdi! Artık gerçek bir menajersiniz! 💪" bildirimi</textarea>
+<textarea id="prompt-4-1" data-title="PROMPT 4.1 — API Sunucusu" style="display:none">Football Manager projesi için Express API sunucusunu yaz.
+
+Dosyalar:
+- src/api/index.ts (Express app + Socket.IO)
+- src/api/middleware/auth.ts (JWT auth)
+- src/api/routes/teams.ts
+- src/api/routes/players.ts
+- src/api/routes/leagues.ts
+- src/api/routes/matches.ts
+- src/api/routes/transfers.ts
+- src/api/routes/users.ts
+
+**API Endpoints:**
+
+Auth:
+- POST /api/auth/telegram — Telegram Login Widget doğrulama → JWT token
+
+Teams:
+- GET /api/teams/:id — Takım detayı (oyuncularla birlikte)
+- GET /api/teams/:id/squad — Kadro (ilk 11 + yedekler)
+- PATCH /api/teams/:id/formation — Formasyon güncelle
+- PATCH /api/teams/:id/tactic — Taktik güncelle
+- PATCH /api/teams/:id/lineup — Kadro düzenle (swap)
+
+Players:
+- GET /api/players/:id — Oyuncu detay
+- GET /api/players/:id/stats — Oyuncu istatistikleri
+
+Leagues:
+- GET /api/leagues/:id — Lig bilgisi
+- GET /api/leagues/:id/standings — Puan tablosu
+- GET /api/leagues/:id/fixtures — Fikstür
+- GET /api/leagues/:id/results — Sonuçlar
+
+Matches:
+- GET /api/matches/:id — Maç detayı + olaylar
+- GET /api/matches/live — Şu an oynanan maçlar
+- GET /api/matches/upcoming — Gelecek maçlar
+
+Transfers:
+- GET /api/transfers/market — Transfer pazarı
+- POST /api/transfers/buy/:playerId — Pazar'dan satın al
+- POST /api/transfers/offer — Teklif gönder
+- PATCH /api/transfers/:id/accept — Teklif kabul
+- PATCH /api/transfers/:id/reject — Teklif red
+
+Users:
+- GET /api/users/me — Kendi profil
+- GET /api/users/me/transactions — Para hareketleri
+
+Middleware: JWT auth, rate limiting (60/dk), CORS, error handler, request logger.</textarea>
+<textarea id="prompt-4-2" data-title="PROMPT 4.2 — Socket.IO Match Tracker" style="display:none">Football Manager projesi için Socket.IO ile gerçek zamanlı match tracker yaz.
+
+Dosyalar:
+- src/socket/matchTracker.ts
+- src/socket/index.ts
+
+**Match Tracker Akışı:**
+
+1. Maç başladığında:
+   - MatchEngine her tick'te event üretir
+   - Her event Socket.IO ile broadcast edilir
+   - Room: "match:{matchId}"
+
+2. **Socket Events:**
+
+   Client → Server:
+   - join_match: { matchId } → ilgili odaya katıl
+   - leave_match: { matchId } → odadan ayrıl
+   - get_live_matches → aktif maç listesi
+
+   Server → Client:
+   - match_tick: { matchId, tick, minute, events[], score, stats }
+   - match_event: { matchId, event: MatchEventData }
+   - match_start: { matchId, homeTeam, awayTeam }
+   - match_halftime: { matchId, score, stats }
+   - match_end: { matchId, finalScore, fullStats, manOfTheMatch }
+   - live_matches_update: { matches[] }
+
+3. **Maç Engine Entegrasyonu:**
+   - simulateMatch() fonksiyonunu tick-by-tick çalıştır
+   - Her tick arasında 1 saniye bekle (gerçek zamanlı izleme)
+   - Her tick'te socket event emit et
+
+4. **TG Bot Match Tracker:**
+   - Maç başında mesaj gönder
+   - Her önemli olay: editMessageText ile güncelle
+   - Rate limit: min 3 saniye arayla edit
+   - Sadece önemli olaylar güncellenir: GOL, KART, SAKATLIK, PENALTI, DEVRE, MAÇ SONU
+   - Mesaj formatı:</textarea>
+<textarea id="prompt-4-3" data-title="PROMPT 4.3 — Web Frontend (Next.js)" style="display:none">Football Manager projesi için Next.js web arayüzünü yaz.
+
+Dizin: web/
+Teknoloji: Next.js 14 (App Router), TailwindCSS, Socket.IO Client
+
+**Sayfalar:**
+
+1. **/ (Dashboard):**
+   - Takım özeti kartı (isim, OVR, formasyon, taktik)
+   - Bakiye ve seviye
+   - Yaklaşan maçlar (sonraki 3 maç)
+   - Son sonuçlar
+   - Hızlı aksiyonlar (Antrenman, Transfer, Kadro)
+
+2. **/squad (Kadro):**
+   - Formasyon görsel gösterimi (saha üzerinde oyuncular)
+   - İlk 11 kartları (isim, pozisyon, OVR, kondisyon bar'ı)
+   - Yedek listesi
+   - Drag &amp; drop kadro düzenleme
+   - Formasyon ve taktik değiştirme dropdown'ları
+
+3. **/player/[id] (Oyuncu Detay):**
+   - Büyük oyuncu kartı (tüm statlar radar chart ile)
+   - Form grafiği (son 10 maç)
+   - Sezon istatistikleri
+   - Antrenman butonu
+
+4. **/league (Lig):**
+   - Puan tablosu (renk kodlu: şampiyon, UCL, küme düşme)
+   - Fikstür takvimi
+   - Maç sonuçları
+
+5. **/match/[id] (Match Tracker):**
+   - Canlı skor (büyük, ortada)
+   - Dakika sayacı
+   - Olay akışı (timeline, yukarıdan aşağı)
+   - Takım istatistikleri (possession bar, şut, faul vb.)
+   - Eğer maç bitmişse: Tam istatistik + maçın adamı
+
+6. **/transfers (Transfer Pazarı):**
+   - Filtreler: Pozisyon, OVR aralığı, fiyat aralığı
+   - Oyuncu kartları grid
+   - Satın al butonu
+   - Gelen/giden teklifler listesi
+
+7. **/profile (Profil):**
+   - Seviye ve XP bar'ı
+   - Sezon istatistikleri
+   - Başarılar (achievements)
+   - Para hareketleri
+
+**Ortak Bileşenler:**
+- Navbar (logo, sayfalar, bakiye, bildirimler)
+- PlayerCard component
+- MatchScore component
+- StandingsTable component
+- Loading/Error states
+- Telegram Login butonu (auth)
+- Socket.IO provider (global connection)
+
+Tasarım: Koyu tema, futbol temalı yeşil aksanlar, modern ve responsive.
+TailwindCSS kullanarak mobil öncelikli tasarım.</textarea>
+<textarea id="prompt-5-1" data-title="PROMPT 5.1 — Şampiyonlar Ligi &amp; Kupa" style="display:none">Football Manager projesi için Şampiyonlar Ligi ve Kupa turnuva sistemini yaz.
+
+Dosyalar:
+- src/engine/tournamentManager.ts
+- src/services/tournamentService.ts
+
+**Şampiyonlar Ligi:**
+
+1. Katılım: A Ligi ilk 4 takım
+2. Format:
+   - Grup aşaması: 2 grup × 4 takım, çift devreli (her takım 6 maç)
+   - Her gruptan ilk 2 → yarı final
+   - Yarı final: Tek maç
+   - Final: Tek maç (Pazar 18:00)
+3. Ödüller: Şampiyon 200K, Finalist 100K, Yarı finalist 50K, Gruptan çıkamayan 20K
+4. Maç günleri: Pazar 18:00
+
+**Kupa Turnuvası:**
+1. Tüm takımlar katılır (A + B Ligi)
+2. Knockout (tek maç eleme)
+3. Kura: Pot sistemi (A Ligi = Pot 1, B Ligi = Pot 2)
+4. Final ödülü: 75K
+5. Sezon sonu: Süper Kupa (Lig şampiyonu vs Kupa şampiyonu)
+
+**TournamentManager:**
+- createChampionsLeague(seasonId, qualifiedTeamIds[])
+- createCup(seasonId, allTeamIds[])
+- drawGroups(teamIds, groupCount)
+- drawKnockout(teamIds, pots?)
+- advanceRound(tournamentId)
+- getTournamentBracket(tournamentId)</textarea>
+<textarea id="prompt-5-2" data-title="PROMPT 5.2 — Sosyal Özellikler" style="display:none">Football Manager projesi için sosyal özellikleri yaz.
+
+**1. Dostluk Maçı:**
+- /dostlukmaci @rakip_username
+- Günde max 3 dostluk maçı
+- Puan tablosunu etkilemez
+- XP ve pasif gelişim verir
+- Sonuç: Normal maç simülasyonu
+
+**2. Lig Sohbet Grubu:**
+- Her lig için otomatik TG grubu oluştur
+- Maç sonuçları otomatik paylaşılır
+- Haftalık özet mesajı (puan tablosu + haftanın sonuçları)
+
+**3. MVP Oylaması:**
+- Her hafta sonu: Haftanın en iyi performans gösteren oyuncuları listelenir
+- Lig üyeleri oy verir (inline keyboard)
+- Kazanan oyuncunun takımına +5 moral tüm kadro
+- /mvp komutu
+
+**4. All-Star Maçı:**
+- Sezon sonunda: A Ligi en iyi 11 vs B Ligi en iyi 11
+- Eğlence maçı, ödül yok, sadece prestij
+
+**5. Liderlik Tabloları:**
+- /golkrali: Sezon gol sıralaması
+- /asistkrali: Sezon asist sıralaması
+- /eniyitakim: Takım OVR sıralaması
+- /liderlik: Genel liderlik tablosu
+
+**6. Başarı Sistemi:**
+- 20+ başarı: İlk galibiyet, 10 galibiyet, 50 gol, 5 galibiyet serisi, şampiyonluk, UCL kazanma, 100K coin biriktirme vb.
+- Her başarı XP + coin ödülü</textarea>
+<textarea id="prompt-6-1" data-title="PROMPT 6.1 — Anti-Cheat &amp; Güvenlik" style="display:none">Football Manager projesi için anti-cheat ve güvenlik önlemlerini yaz.
+
+Dosya: src/services/antiCheatService.ts
+
+**Kurallar:**
+1. Çoklu hesap: TG hesap yaşı &lt; 7 gün → kayıt engeli
+2. IP kontrolü: Web'de aynı IP'den max 2 hesap
+3. Transfer suistimali: Piyasa değerinin %50 altına satış → otomatik blok
+4. Aynı 2 kişi arasında günde max 1 transfer
+5. Rate limiting: Dakikada max 30 API çağrısı per kullanıcı
+6. Bot davranış tespiti: Anormal aktivite pattern'i (1 dk'da 50+ komut)
+
+**Ceza Sistemi:**
+- 1. ihlal: Uyarı mesajı
+- 2. ihlal: 3 gün ban (tüm komutlar kilitlenir)
+- 3. ihlal: Sezon sonu hesap silme
+
+**Loglama:**
+- Her transfer, her büyük para hareketi loglanır
+- Şüpheli aktiviteler ayrı log dosyasına
+- Haftalık otomatik rapor (admin'e)</textarea>
+<textarea id="prompt-6-2" data-title="PROMPT 6.2 — Veri Yedekleme &amp; Deployment" style="display:none">Football Manager projesi için yedekleme ve deployment yapılandırmasını yaz.
+
+**Yedekleme:**
+1. PostgreSQL WAL: continuous archiving, 7 gün retention
+2. Günlük pg_dump: Cron 04:00, sıkıştırılmış SQL → /backups/ dizini
+3. Redis RDB: 15 dakikada bir snapshot
+4. Kurtarma prosedürü dokümantasyonu
+
+**Deployment:**
+1. VPS: 2 vCPU, 4GB RAM, Ubuntu 22.04
+2. Docker Compose production yapısı:
+   - PostgreSQL 16 + Redis 7 + Node.js app
+3. PM2 process manager:
+   - pm2.config.js: Bot + API + Worker süreçleri
+   - Auto-restart, memory limit, log rotation
+4. Nginx reverse proxy:
+   - SSL (Let's Encrypt)
+   - WebSocket proxy (Socket.IO için)
+   - Static file serving (Next.js build)
+5. Monitoring:
+   - pm2 monit
+   - Basit health check endpoint (/api/health)
+
+**Performans:**
+1. Redis cache: Puan tablosu (TTL: 60s), oyuncu detay (TTL: 30s)
+2. DB indexleri: Match.scheduledAt, Player.teamId, LeagueTeam.leagueId, Transfer.status
+3. Connection pooling: Prisma default pool</textarea>
+<textarea id="prompt-6-3" data-title="PROMPT 6.3 — Ekonomi Dengeleme &amp; Son Testler" style="display:none">Football Manager projesi için ekonomi dengeleme testi ve son dokunuşları yaz.
+
+**Simülasyon Testi:**
+25-30 yapay takım oluştur ve 2 sezon simüle et.
+Kontrol listesi:
+1. Ortalama takım bakiyesi sezon sonunda pozitif mi?
+2. En zengin ve en fakir arasındaki fark makul mü? (max 5x)
+3. Transfer pazarında enflasyon var mı? (ortalama fiyat artışı &lt; %20/sezon)
+4. Maaş toplamı gelirlerden düşük mü? (sürdürülebilir)
+5. Yeni oyuncu 4 hafta sonra rekabetçi olabiliyor mu?
+6. 34+ yaş oyuncular doğal olarak değer kaybediyor mu?
+
+**Ayarlama:**
+Dengesizlik varsa şu parametreleri ayarla:
+- Maç ödülleri (5K/2K/500)
+- Maaş çarpanı (0.02)
+- Antrenman maliyetleri
+- Transfer NPC fiyatları
+- Stadyum bakım ücreti
+
+**Son Dokunuşlar:**
+1. Tüm hata mesajlarını Türkçeleştir
+2. Bot komut listesini BotFather'a kaydet
+3. README.md güncelle (son kurulum adımları)
+4. Kullanıcı geri bildirim toplama: /geribildirm komutu</textarea>
+<textarea id="prompt-hata-ayiklama" data-title="Hata Ayıklama" style="display:none">Football Manager projesinde [MODÜL] bölümünde şu hata var:
+[HATA MESAJI]
+
+Mevcut kod: [KOD]
+
+Bu hatayı düzelt. Düzeltirken:
+1. Hatanın kök nedenini açıkla
+2. Düzeltme kodunu yaz
+3. Benzer hataları önlemek için ek kontroller öner</textarea>
+<textarea id="prompt-yeni-ozellik-ekleme" data-title="Yeni Özellik Ekleme" style="display:none">Football Manager projesine yeni bir özellik eklemek istiyorum:
+[ÖZELLİK AÇIKLAMASI]
+
+Mevcut yapı:
+- src/engine/ — Maç motoru, oyuncu oluşturma
+- src/services/ — İş mantığı servisleri
+- src/bot/ — Telegram bot komutları
+- src/api/ — REST API
+- prisma/schema.prisma — Veritabanı modelleri
+
+Bu özelliği:
+1. Hangi dosyalara eklenmeli?
+2. DB schema değişikliği gerekiyor mu?
+3. Yeni endpoint/komut gerekiyor mu?
+4. Mevcut sisteme etkisi ne?
+
+Kodu yaz ve mevcut yapıya entegre et.</textarea>
+<textarea id="prompt-performans-i̇yileştirme" data-title="Performans İyileştirme" style="display:none">Football Manager projesinde [BÖLÜM] yavaş çalışıyor.
+
+Mevcut durum: [AÇIKLAMA]
+Beklenen: [HEDEF]
+
+Optimize et:
+1. Database sorgu optimizasyonu (N+1 problemi, index eksikliği)
+2. Redis cache ekleme
+3. Bulk işlem kullanma
+4. Gereksiz DB çağrılarını kaldırma</textarea>
 
 <script>
 // ═══════════════════════════════════════
-//  PROJECT DATA — Tüm Fazlar ve Görevler
+//  PROMPT MAP — Category → Prompt ID
+// ═══════════════════════════════════════
+const PROMPT_MAP = {
+  "faz0-Geliştirme Ortamı": "prompt-0-1",
+  "faz0-Altyapı Servisleri": "prompt-0-2",
+  "faz0-Temel Bot Kurulumu": "prompt-0-3",
+  "faz1-Veritabanı Şeması": "prompt-1-1",
+  "faz1-Oyuncu Oluşturma Sistemi": "prompt-1-2",
+  "faz1-Starter Pack & Onboarding": "prompt-1-2",
+  "faz1-Telegram Bot — Kayıt & Takım": "prompt-1-3",
+  "faz1-Maç Simülasyon Motoru (Temel)": "prompt-1-4",
+  "faz1-Basit Lig Sistemi": "prompt-1-5",
+  "faz2-Ekonomi Sistemi": "prompt-2-1",
+  "faz2-Transfer Pazarı": "prompt-2-2",
+  "faz2-Antrenman Sistemi": "prompt-2-3",
+  "faz2-Seviye Sistemi": "prompt-2-4",
+  "faz2-Sakatlık & Kart Detayı": "prompt-2-3",
+  "faz2-Antrenör Sistemi": "prompt-2-3",
+  "faz3-Lig Yapısı": "prompt-3-1",
+  "faz3-Sezon Döngüsü": "prompt-3-1",
+  "faz3-Otomatik Maç Zamanlama": "prompt-3-1",
+  "faz3-Bildirim Sistemi": "prompt-3-2",
+  "faz3-Yeni Oyuncu Dengeleme": "prompt-3-3",
+  "faz4-API Sunucusu": "prompt-4-1",
+  "faz4-Socket.IO — Gerçek Zamanlı": "prompt-4-2",
+  "faz4-Web Arayüzü (Next.js)": "prompt-4-3",
+  "faz4-İstatistik Sayfaları": "prompt-4-3",
+  "faz5-Şampiyonlar Ligi": "prompt-5-1",
+  "faz5-Kupa Turnuvası": "prompt-5-1",
+  "faz5-Sosyal Özellikler": "prompt-5-2",
+  "faz5-Liderlik Tabloları": "prompt-5-2",
+  "faz6-Anti-Cheat & Güvenlik": "prompt-6-1",
+  "faz6-Veri Yedekleme": "prompt-6-2",
+  "faz6-Performans & Ölçekleme": "prompt-6-2",
+  "faz6-Son Dokunuşlar": "prompt-6-3"
+};
+
+// ═══════════════════════════════════════
+//  PROJECT DATA
 // ═══════════════════════════════════════
 const PROJECT = [
   {
@@ -654,7 +1633,7 @@ const PROJECT = [
         tasks: [
           { id: "f1-01", text: "User modeli: tg_id, username, level, xp, coins, created_at", tags: ["critical", "db"] },
           { id: "f1-02", text: "Team modeli: user_id, name, formation, tactic, power_rating", tags: ["critical", "db"] },
-          { id: "f1-03", text: "Player modeli: 7 ana stat (spd/sht/pas/drb/def/phy/ref) + 4 dinamik stat (moral/form/kondisyon/sakatlık)", tags: ["critical", "db"] },
+          { id: "f1-03", text: "Player modeli: 7 ana stat (spd/sht/pas/drb/def/phy/ref) + 4 dinamik stat", tags: ["critical", "db"] },
           { id: "f1-04", text: "Player meta: yaş, pozisyon, alternatif pozisyon, piyasa değeri, maaş, overall", tags: ["critical", "db"] },
           { id: "f1-05", text: "League modeli: name, season, status, type (A/B)", tags: ["important", "db"] },
           { id: "f1-06", text: "LeagueTeam (lig-takım ilişkisi): puan, galibiyet, beraberlik, mağlubiyet, AG, YG", tags: ["important", "db"] },
@@ -669,7 +1648,7 @@ const PROJECT = [
           { id: "f1-10", text: "Rastgele futbolcu üretim fonksiyonu (pozisyon bazlı stat dağılımı)", tags: ["critical", "engine"] },
           { id: "f1-11", text: "Pozisyona göre ağırlıklı overall hesaplama formülü (GK, CB, ST vb.)", tags: ["critical", "engine"] },
           { id: "f1-12", text: "Rastgele isim havuzu (Türkçe isim/soyisim listesi)", tags: ["normal"] },
-          { id: "f1-13", text: "Yaş bazlı stat dağılım kuralları (genç=düşük ama gelişir, yaşlı=yüksek ama geriler)", tags: ["important", "engine"] },
+          { id: "f1-13", text: "Yaş bazlı stat dağılım kuralları", tags: ["important", "engine"] },
           { id: "f1-14", text: "Piyasa değeri hesaplama fonksiyonu (stat × yaş × form çarpanı)", tags: ["important", "engine"] },
           { id: "f1-15", text: "Maaş hesaplama fonksiyonu (piyasa değeri × 0.02)", tags: ["normal", "engine"] },
         ]
@@ -677,7 +1656,7 @@ const PROJECT = [
       {
         name: "Starter Pack & Onboarding",
         tasks: [
-          { id: "f1-16", text: "18 futbolculuk starter pack üretici (pozisyon dağılımlı: 2GK, 3CB, 1LB, 1RB, 3CM, 1LW, 1RW, 2ST, 1CAM, 1WB, 1CDM)", tags: ["critical", "engine"] },
+          { id: "f1-16", text: "18 futbolculuk starter pack üretici (pozisyon dağılımlı)", tags: ["critical", "engine"] },
           { id: "f1-17", text: "Starter OVR aralığı: 45-60, 1 yıldız oyuncu 65-70 garantisi", tags: ["important", "engine"] },
           { id: "f1-18", text: "Başlangıç bakiye: 50.000 coin ataması", tags: ["normal"] },
         ]
@@ -689,9 +1668,9 @@ const PROJECT = [
           { id: "f1-20", text: "Takım oluşturma akışı: İsim girme → Starter pack atama → Onay", tags: ["critical", "bot"] },
           { id: "f1-21", text: "Inline keyboard: Ana menü (Kadro, Antrenman, Lig, Transfer, Profil)", tags: ["critical", "bot"] },
           { id: "f1-22", text: "/kadro komutu: İlk 11 + yedekleri listele", tags: ["important", "bot"] },
-          { id: "f1-23", text: "/oyuncu [isim] komutu: Detaylı futbolcu kartı göster (tüm statlar)", tags: ["important", "bot"] },
+          { id: "f1-23", text: "/oyuncu [isim] komutu: Detaylı futbolcu kartı göster", tags: ["important", "bot"] },
           { id: "f1-24", text: "Formasyon seçimi: 6 formasyon inline butonlarla göster ve seç", tags: ["important", "bot"] },
-          { id: "f1-25", text: "Taktik seçimi: Hücum/Dengeli/Defansif/Tüm Güç Hücum inline butonlar", tags: ["important", "bot"] },
+          { id: "f1-25", text: "Taktik seçimi: Hücum/Dengeli/Defansif/Tüm Güç Hücum", tags: ["important", "bot"] },
           { id: "f1-26", text: "Kadro düzenleme: Oyuncu yer değiştir (asil ↔ yedek)", tags: ["important", "bot"] },
           { id: "f1-27", text: "Nasıl Oynanır rehberi: 5 adımlık interaktif tur + 5.000 coin ödül", tags: ["normal", "bot"] },
         ]
@@ -710,7 +1689,7 @@ const PROJECT = [
           { id: "f1-36", text: "Ev sahibi avantajı: +3 bonus", tags: ["normal", "engine"] },
           { id: "f1-37", text: "Takım gücü farkı etkisi: her 5 puan = %8 lehine dönüşüm", tags: ["important", "engine"] },
           { id: "f1-38", text: "Maç sonucu kaydetme (skor, olaylar, istatistikler DB'ye)", tags: ["critical", "engine"] },
-          { id: "f1-39", text: "Maç sonrası stat güncellemeleri (kondisyon -15, pasif gelişim, moral)", tags: ["important", "engine"] },
+          { id: "f1-39", text: "Maç sonrası stat güncellemeleri (kondisyon, pasif gelişim, moral)", tags: ["important", "engine"] },
           { id: "f1-40", text: "Maç sonucu Telegram bildirim mesajı", tags: ["important", "bot"] },
         ]
       },
@@ -719,7 +1698,7 @@ const PROJECT = [
         tasks: [
           { id: "f1-41", text: "Fikstür oluşturma algoritması (round-robin)", tags: ["critical", "engine"] },
           { id: "f1-42", text: "Puan tablosu hesaplama (G=3, B=1, M=0) ve sıralama", tags: ["critical", "engine"] },
-          { id: "f1-43", text: "/ligtablosu komutu: Puan tablosu göster (sıra, takım, O, G, B, M, AG, YG, P)", tags: ["important", "bot"] },
+          { id: "f1-43", text: "/ligtablosu komutu: Puan tablosu göster", tags: ["important", "bot"] },
           { id: "f1-44", text: "/fikstur komutu: Gelecek maçlar listesi", tags: ["important", "bot"] },
           { id: "f1-45", text: "/sonuclar komutu: Son oynanan maç sonuçları", tags: ["normal", "bot"] },
         ]
@@ -741,7 +1720,7 @@ const PROJECT = [
           { id: "f2-01", text: "Maç ödülleri: Galibiyet 5K, Beraberlik 2K, Mağlubiyet 500", tags: ["critical", "engine"] },
           { id: "f2-02", text: "Haftalık otomatik maaş kesimi (tüm kadro maaş toplamı)", tags: ["critical", "engine"] },
           { id: "f2-03", text: "Maaş ödenmezse moral -30 cezası", tags: ["important", "engine"] },
-          { id: "f2-04", text: "Stadyum bakım ücreti: Haftalık 5.000 (ödenmezse ev avantajı kalkıyor)", tags: ["important", "engine"] },
+          { id: "f2-04", text: "Stadyum bakım ücreti: Haftalık 5.000", tags: ["important", "engine"] },
           { id: "f2-05", text: "Günlük giriş ödülü: 1.000 coin (/gunluk komutu)", tags: ["normal", "bot"] },
           { id: "f2-06", text: "Bakiye gösterimi ve gelir/gider geçmişi", tags: ["normal", "bot"] },
           { id: "f2-07", text: "Ekonomi denge kontrolü: Enflasyon testi (25-30 oyuncuyla simülasyon)", tags: ["important", "engine"] },
@@ -750,11 +1729,11 @@ const PROJECT = [
       {
         name: "Transfer Pazarı",
         tasks: [
-          { id: "f2-08", text: "Transfer pazarı: Sistem tarafından üretilen oyuncular (NPC satışa sunar)", tags: ["critical", "engine"] },
+          { id: "f2-08", text: "Transfer pazarı: Sistem tarafından üretilen NPC oyuncular", tags: ["critical", "engine"] },
           { id: "f2-09", text: "Oyuncular arası transfer teklifi gönder/al mekanizması", tags: ["important", "bot"] },
           { id: "f2-10", text: "Transfer fiyat hesabı: Piyasa değeri + talep çarpanı", tags: ["important", "engine"] },
           { id: "f2-11", text: "Transfer vergisi: Düşük ligden alımda +%50 fiyat farkı", tags: ["normal", "engine"] },
-          { id: "f2-12", text: "Yeni oyuncu ilk hafta transfer engeli (manipülasyon önlemi)", tags: ["normal", "engine"] },
+          { id: "f2-12", text: "Yeni oyuncu ilk hafta transfer engeli", tags: ["normal", "engine"] },
           { id: "f2-13", text: "Anti-abuse: Aynı 2 kullanıcı arasında günde max 1 transfer", tags: ["important", "engine"] },
           { id: "f2-14", text: "Transfer modeli: from_team, to_team, player, price, timestamp → DB", tags: ["important", "db"] },
           { id: "f2-15", text: "/transfer komutu: Pazarı gör, teklif gönder, kabul/red", tags: ["critical", "bot"] },
@@ -765,10 +1744,10 @@ const PROJECT = [
         tasks: [
           { id: "f2-16", text: "Pasif gelişim: Maç sonrası oynayan oyunculara +0.1-0.3 rastgele stat", tags: ["critical", "engine"] },
           { id: "f2-17", text: "Aktif antrenman seçenekleri: Kondisyon/Teknik/Taktik/Fizik/GK kampları", tags: ["critical", "engine"] },
-          { id: "f2-18", text: "Yoğun Kamp (5K/oyuncu, +1.0 stat, kondisyon -20) ve Elit Kamp (10K, +1.0×2 stat)", tags: ["important", "engine"] },
+          { id: "f2-18", text: "Yoğun Kamp (5K, +1.0 stat) ve Elit Kamp (10K, +1.0×2 stat)", tags: ["important", "engine"] },
           { id: "f2-19", text: "Antrenman cooldown sistemi (12-48 saat arası)", tags: ["important", "engine"] },
           { id: "f2-20", text: "Yaş bazlı gelişim çarpanı (17-21: ×1.5, 34+: gerileme)", tags: ["critical", "engine"] },
-          { id: "f2-21", text: "Catchup mekanizması: Düşük OVR oyuncular daha hızlı gelişir (40-55: ×2.0)", tags: ["important", "engine"] },
+          { id: "f2-21", text: "Catchup mekanizması: Düşük OVR daha hızlı gelişir (40-55: ×2.0)", tags: ["important", "engine"] },
           { id: "f2-22", text: "/antrenman komutu: Oyuncu seç, kamp türü seç, başlat", tags: ["critical", "bot"] },
         ]
       },
@@ -795,7 +1774,7 @@ const PROJECT = [
       {
         name: "Antrenör Sistemi",
         tasks: [
-          { id: "f2-33", text: "Bronz/Gümüş/Altın antrenör: 7 günlük geçici buff (+%20/40/60 antrenman etkisi)", tags: ["normal", "engine"] },
+          { id: "f2-33", text: "Bronz/Gümüş/Altın antrenör: 7 günlük geçici buff", tags: ["normal", "engine"] },
           { id: "f2-34", text: "/antrenor komutu: Antrenör kirala, aktif antrenör göster", tags: ["normal", "bot"] },
         ]
       }
@@ -814,8 +1793,8 @@ const PROJECT = [
         name: "Lig Yapısı",
         tasks: [
           { id: "f3-01", text: "2 lig sistemi: A Ligi (üst) + B Ligi (alt), her biri ~13-15 takım", tags: ["critical", "engine"] },
-          { id: "f3-02", text: "Dinamik lig ataması: Yeni oyuncular → B Ligi, güç bazlı denge", tags: ["important", "engine"] },
-          { id: "f3-03", text: "Relegation/Promotion: A son 2 → B'ye düşer, B ilk 2 → A'ya çıkar", tags: ["critical", "engine"] },
+          { id: "f3-02", text: "Dinamik lig ataması: Yeni oyuncular → B Ligi", tags: ["important", "engine"] },
+          { id: "f3-03", text: "Relegation/Promotion: A son 2 → B'ye, B ilk 2 → A'ya", tags: ["critical", "engine"] },
           { id: "f3-04", text: "Sezon modeli: season number, start_date, end_date, status → DB", tags: ["important", "db"] },
         ]
       },
@@ -833,9 +1812,9 @@ const PROJECT = [
         name: "Otomatik Maç Zamanlama",
         tasks: [
           { id: "f3-10", text: "node-cron: Çarşamba + Cuma 20:00 maç günleri zamanlayıcı", tags: ["critical", "engine"] },
-          { id: "f3-11", text: "BullMQ: Maç kuyruğu oluştur, 5'er dakika aralıkla maç başlat", tags: ["critical", "engine"] },
+          { id: "f3-11", text: "BullMQ: Maç kuyruğu, 5'er dakika aralıkla maç başlat", tags: ["critical", "engine"] },
           { id: "f3-12", text: "Maç öncesi kontrol: Minimum güç seviyesi, kadro yeterliliği", tags: ["important", "engine"] },
-          { id: "f3-13", text: "Kadro eksikse otomatik yedek ataması (en iyi yedek ilk 11'e)", tags: ["normal", "engine"] },
+          { id: "f3-13", text: "Kadro eksikse otomatik yedek ataması", tags: ["normal", "engine"] },
           { id: "f3-14", text: "Sakatlar ve cezalılar otomatik kadro dışı", tags: ["important", "engine"] },
         ]
       },
@@ -854,7 +1833,7 @@ const PROJECT = [
       {
         name: "Yeni Oyuncu Dengeleme",
         tasks: [
-          { id: "f3-22", text: "Yeni oyuncu koruma kalkanı: İlk 2 hafta %50 indirimli maaş/antrenman", tags: ["important", "engine"] },
+          { id: "f3-22", text: "Yeni oyuncu koruma kalkanı: İlk 2 hafta %50 indirimli", tags: ["important", "engine"] },
           { id: "f3-23", text: "Mağlubiyet teselli ödülü: İlk 2 hafta ekstra 2.000 coin", tags: ["normal", "engine"] },
           { id: "f3-24", text: "Sezon ortası katılım: Sonraki sezon başına kadar dostluk maçları", tags: ["normal", "engine"] },
         ]
@@ -873,7 +1852,7 @@ const PROJECT = [
       {
         name: "API Sunucusu",
         tasks: [
-          { id: "f4-01", text: "Express/Fastify API sunucusu kurulumu", tags: ["critical", "api"] },
+          { id: "f4-01", text: "Express API sunucusu kurulumu", tags: ["critical", "api"] },
           { id: "f4-02", text: "JWT tabanlı auth (Telegram Login Widget ile doğrulama)", tags: ["critical", "api"] },
           { id: "f4-03", text: "REST endpoint'leri: /teams, /players, /leagues, /matches, /transfers", tags: ["critical", "api"] },
           { id: "f4-04", text: "Rate limiting middleware (dakikada max 60 istek)", tags: ["important", "api"] },
@@ -891,36 +1870,27 @@ const PROJECT = [
         ]
       },
       {
-        name: "TG Bot Match Tracker",
+        name: "Web Arayüzü (Next.js)",
         tasks: [
-          { id: "f4-11", text: "Maç başında mesaj gönder, her önemli olayda editMessageText ile güncelle", tags: ["critical", "bot"] },
-          { id: "f4-12", text: "Rate limit: Max 3 saniyede 1 edit (TG API limiti)", tags: ["important", "bot"] },
-          { id: "f4-13", text: "Tracker mesajı formatı: Skor, olaylar listesi, ilerleme barı", tags: ["important", "bot"] },
-          { id: "f4-14", text: "Yenile ve İstatistik inline butonları", tags: ["normal", "bot"] },
-        ]
-      },
-      {
-        name: "Web Frontend — Next.js",
-        tasks: [
-          { id: "f4-15", text: "Next.js projesi kurulumu (App Router, TailwindCSS)", tags: ["critical", "web"] },
-          { id: "f4-16", text: "Telegram Login entegrasyonu (web auth)", tags: ["critical", "web"] },
-          { id: "f4-17", text: "Dashboard sayfası: Takım özeti, yaklaşan maçlar, bakiye, seviye", tags: ["critical", "web"] },
-          { id: "f4-18", text: "Takım sayfası: Kadro listesi, formasyon görünümü, oyuncu detay kartları", tags: ["important", "web"] },
-          { id: "f4-19", text: "Lig sayfası: Puan tablosu, fikstür, geçmiş sonuçlar", tags: ["important", "web"] },
-          { id: "f4-20", text: "Match Tracker sayfası: Gerçek zamanlı maç izleme (Socket.IO client)", tags: ["critical", "web"] },
-          { id: "f4-21", text: "Match Tracker UI: Skor, dakika, olay listesi, ilerleme barı, saha animasyonu", tags: ["important", "web"] },
-          { id: "f4-22", text: "Transfer pazarı sayfası: Oyuncu listele, filtrele, teklif gönder", tags: ["important", "web"] },
-          { id: "f4-23", text: "Profil sayfası: İstatistikler, başarılar, seviye bilgisi", tags: ["normal", "web"] },
-          { id: "f4-24", text: "Responsive tasarım: Mobil uyumluluk", tags: ["important", "web"] },
+          { id: "f4-11", text: "Next.js 14 App Router + TailwindCSS kurulumu", tags: ["critical", "web"] },
+          { id: "f4-12", text: "Telegram Login Widget entegrasyonu (web auth)", tags: ["critical", "web"] },
+          { id: "f4-13", text: "Dashboard: Takım özeti, bakiye, yaklaşan maçlar", tags: ["important", "web"] },
+          { id: "f4-14", text: "Takım sayfası: Kadro listesi, formasyon görünümü", tags: ["important", "web"] },
+          { id: "f4-15", text: "Lig sayfası: Puan tablosu, fikstür, sonuçlar", tags: ["important", "web"] },
+          { id: "f4-16", text: "Match Tracker: Gerçek zamanlı maç izleme (Socket.IO)", tags: ["critical", "web"] },
+          { id: "f4-17", text: "Match Tracker UI: Skor, dakika, olay listesi, ilerleme barı", tags: ["important", "web"] },
+          { id: "f4-18", text: "Transfer pazarı sayfası: Oyuncu listele, filtrele, teklif", tags: ["important", "web"] },
+          { id: "f4-19", text: "Profil sayfası: İstatistikler, başarılar, seviye", tags: ["normal", "web"] },
+          { id: "f4-20", text: "Responsive tasarım: Mobil uyumluluk", tags: ["important", "web"] },
         ]
       },
       {
         name: "İstatistik Sayfaları",
         tasks: [
-          { id: "f4-25", text: "Gol kralı, asist kralı, en çok katkı tablosu", tags: ["important", "web"] },
-          { id: "f4-26", text: "En iyi GK (clean sheet), en iyi defans, disiplin tablosu", tags: ["normal", "web"] },
-          { id: "f4-27", text: "En değerli futbolcu, en gelişen futbolcu tabloları", tags: ["normal", "web"] },
-          { id: "f4-28", text: "Takım bazlı detaylı istatistikler", tags: ["normal", "web"] },
+          { id: "f4-21", text: "Gol kralı, asist kralı tablosu", tags: ["important", "web"] },
+          { id: "f4-22", text: "En iyi GK, en iyi defans, disiplin tablosu", tags: ["normal", "web"] },
+          { id: "f4-23", text: "En değerli, en gelişen futbolcu tabloları", tags: ["normal", "web"] },
+          { id: "f4-24", text: "Takım bazlı detaylı istatistikler", tags: ["normal", "web"] },
         ]
       }
     ]
@@ -937,7 +1907,7 @@ const PROJECT = [
       {
         name: "Şampiyonlar Ligi",
         tasks: [
-          { id: "f5-01", text: "A Ligi ilk 4 → Şampiyonlar Ligi'ne katılım hakkı", tags: ["critical", "engine"] },
+          { id: "f5-01", text: "A Ligi ilk 4 → Şampiyonlar Ligi katılım hakkı", tags: ["critical", "engine"] },
           { id: "f5-02", text: "Grup aşaması: 4'erli gruplar, çift devreli", tags: ["important", "engine"] },
           { id: "f5-03", text: "Eleme aşaması: Çeyrek final → Yarı final → Final", tags: ["important", "engine"] },
           { id: "f5-04", text: "Şampiyonlar Ligi ödülü: 200.000 coin + özel rozet", tags: ["normal", "engine"] },
@@ -947,27 +1917,27 @@ const PROJECT = [
       {
         name: "Kupa Turnuvası",
         tasks: [
-          { id: "f5-06", text: "Knockout usulü kupa: Tüm takımlar katılır (A + B ligi)", tags: ["important", "engine"] },
+          { id: "f5-06", text: "Knockout usulü kupa: Tüm takımlar katılır", tags: ["important", "engine"] },
           { id: "f5-07", text: "Kura çekimi algoritması (seri başı + pot sistemi)", tags: ["normal", "engine"] },
-          { id: "f5-08", text: "Kupa ödülleri ve sezon sonu Süper Kupa (Lig şampiyonu vs Kupa şampiyonu)", tags: ["normal", "engine"] },
+          { id: "f5-08", text: "Kupa ödülleri ve Süper Kupa", tags: ["normal", "engine"] },
         ]
       },
       {
         name: "Sosyal Özellikler",
         tasks: [
-          { id: "f5-09", text: "Lig TG grup otomatik oluşturma (maç sonuçları otomatik paylaşım)", tags: ["important", "bot"] },
+          { id: "f5-09", text: "Lig TG grup otomatik oluşturma", tags: ["important", "bot"] },
           { id: "f5-10", text: "/dostlukmaci @rakip komutu: Puan etkilemez, sadece XP", tags: ["important", "bot"] },
           { id: "f5-11", text: "Günde max 3 dostluk maçı sınırı", tags: ["normal", "engine"] },
-          { id: "f5-12", text: "Haftalık MVP oylaması: En iyi performans → +5 moral tüm kadro", tags: ["normal", "bot"] },
-          { id: "f5-13", text: "All-Star maçı: Sezon sonu A Ligi vs B Ligi en iyi 11'ler", tags: ["normal", "engine"] },
+          { id: "f5-12", text: "Haftalık MVP oylaması: En iyi performans → +5 moral", tags: ["normal", "bot"] },
+          { id: "f5-13", text: "All-Star maçı: Sezon sonu A vs B Ligi en iyi 11'ler", tags: ["normal", "engine"] },
         ]
       },
       {
         name: "Liderlik Tabloları",
         tasks: [
-          { id: "f5-14", text: "Gol kralı, asist kralı liderlik tabloları (TG bot komutu)", tags: ["important", "bot"] },
-          { id: "f5-15", text: "Kullanıcı profil istatistikleri: Maç, galibiyet %, atılan/yenilen gol", tags: ["important", "bot"] },
-          { id: "f5-16", text: "Başarı (achievement) sistemi: 50 gol, 5 galibiyet serisi, şampiyonluk vb.", tags: ["normal", "engine"] },
+          { id: "f5-14", text: "Gol kralı, asist kralı liderlik tabloları (TG bot)", tags: ["important", "bot"] },
+          { id: "f5-15", text: "Kullanıcı profil istatistikleri: Maç, galibiyet %, gol", tags: ["important", "bot"] },
+          { id: "f5-16", text: "Başarı sistemi: 50 gol, 5 galibiyet serisi, şampiyonluk vb.", tags: ["normal", "engine"] },
           { id: "f5-17", text: "Demir Adam: En uzun sakatlıksız maç serisi", tags: ["normal", "engine"] },
         ]
       }
@@ -987,9 +1957,9 @@ const PROJECT = [
         tasks: [
           { id: "f6-01", text: "Çoklu hesap tespiti: TG hesap yaşı < 7 gün → kayıt engeli", tags: ["important", "api"] },
           { id: "f6-02", text: "Aynı IP'den max 2 hesap kontrolü (web)", tags: ["normal", "api"] },
-          { id: "f6-03", text: "Transfer suistimali: Piyasa değerinin %50 altına satış → otomatik blok", tags: ["important", "engine"] },
+          { id: "f6-03", text: "Transfer suistimali: Piyasa değerinin %50 altına → blok", tags: ["important", "engine"] },
           { id: "f6-04", text: "Rate limiting: Dakikada max 30 API çağrısı per kullanıcı", tags: ["important", "api"] },
-          { id: "f6-05", text: "Ceza sistemi: 1. uyarı → 2. 3 gün ban → 3. sezon sonu silme", tags: ["normal", "engine"] },
+          { id: "f6-05", text: "Ceza sistemi: 1. uyarı → 2. 3 gün ban → 3. silme", tags: ["normal", "engine"] },
         ]
       },
       {
@@ -1005,8 +1975,8 @@ const PROJECT = [
         name: "Performans & Ölçekleme",
         tasks: [
           { id: "f6-10", text: "Redis cache: Puan tablosu, sık erişilen veriler", tags: ["important", "db"] },
-          { id: "f6-11", text: "BullMQ worker sayısını artırma (3+ paralel maç işleme)", tags: ["normal", "engine"] },
-          { id: "f6-12", text: "Veritabanı index optimizasyonu (sık sorgular için)", tags: ["important", "db"] },
+          { id: "f6-11", text: "BullMQ worker sayısını artırma (3+ paralel)", tags: ["normal", "engine"] },
+          { id: "f6-12", text: "Veritabanı index optimizasyonu (sık sorgular)", tags: ["important", "db"] },
           { id: "f6-13", text: "Socket.IO room yönetimi optimizasyonu", tags: ["normal", "api"] },
           { id: "f6-14", text: "VPS deployment: 2 vCPU, 4GB RAM sunucu kurulumu", tags: ["important"] },
           { id: "f6-15", text: "PM2 veya Docker production deployment", tags: ["important"] },
@@ -1030,7 +2000,7 @@ const PROJECT = [
 // ═══════════════════════════════════════
 //  STATE
 // ═══════════════════════════════════════
-const STORAGE_KEY = "fm_project_tracker_v1";
+const STORAGE_KEY = "fm_project_tracker_v2";
 
 function loadState() {
   try {
@@ -1047,7 +2017,7 @@ function saveState() {
 let state = loadState();
 let activeFilter = "all";
 let searchQuery = "";
-let activePhase = null; // null = show all
+let activePhase = null;
 
 // ═══════════════════════════════════════
 //  COMPUTED
@@ -1078,6 +2048,46 @@ function getTotalStats() {
   const done = all.filter(t => state.done[t.id]).length;
   return { total: all.length, done, pct: all.length > 0 ? Math.round((done / all.length) * 100) : 0 };
 }
+
+// ═══════════════════════════════════════
+//  PROMPT FUNCTIONS
+// ═══════════════════════════════════════
+function openPrompt(promptId) {
+  const el = document.getElementById(promptId);
+  if (!el) return;
+  const title = el.getAttribute("data-title") || "Prompt";
+  document.getElementById("prompt-modal-title").textContent = title;
+  document.getElementById("prompt-modal-content").textContent = el.value;
+  document.getElementById("prompt-modal").classList.add("show");
+  document.body.style.overflow = "hidden";
+  // Reset copy button
+  const btn = document.getElementById("prompt-copy-btn");
+  btn.textContent = "📋 Kopyala";
+  btn.classList.remove("copied");
+}
+
+function closePrompt() {
+  document.getElementById("prompt-modal").classList.remove("show");
+  document.body.style.overflow = "";
+}
+
+function copyPrompt() {
+  const content = document.getElementById("prompt-modal-content").textContent;
+  navigator.clipboard.writeText(content).then(() => {
+    const btn = document.getElementById("prompt-copy-btn");
+    btn.textContent = "✅ Kopyalandı!";
+    btn.classList.add("copied");
+    setTimeout(() => {
+      btn.textContent = "📋 Kopyala";
+      btn.classList.remove("copied");
+    }, 2500);
+  });
+}
+
+// ESC key to close modal
+document.addEventListener("keydown", (e) => {
+  if (e.key === "Escape") closePrompt();
+});
 
 // ═══════════════════════════════════════
 //  RENDER
@@ -1145,6 +2155,12 @@ function renderPhases() {
 
       if (filteredTasks.length === 0 && (activeFilter !== "all" || searchQuery)) return "";
 
+      // Check for prompt
+      const promptId = PROMPT_MAP[catKey];
+      const promptBtn = promptId
+        ? `<button class="prompt-btn" onclick="event.stopPropagation(); openPrompt('${promptId}')" title="Bu kategori için hazır prompt'u göster">📋 Prompt</button>`
+        : "";
+
       const tasksHTML = filteredTasks.map(t => {
         const isDone = !!state.done[t.id];
         const tagsHTML = t.tags.map(tag => `<span class="task-tag tag-${tag}">${tag}</span>`).join("");
@@ -1166,7 +2182,10 @@ function renderPhases() {
           <div class="category-header" onclick="toggleCategory('${catKey}')">
             <div class="category-chevron ${isCollapsed ? '' : 'open'}">▶</div>
             <div class="category-title">${cat.name}</div>
-            <div class="category-count">${catDone}/${cat.tasks.length}</div>
+            <div class="category-right">
+              ${promptBtn}
+              <div class="category-count">${catDone}/${cat.tasks.length}</div>
+            </div>
           </div>
           <div class="category-tasks ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? '0' : filteredTasks.length * 100 + 'px'}">
             ${tasksHTML}
@@ -1196,20 +2215,13 @@ function toggleTask(id) {
   if (!state.done[id]) delete state.done[id];
   saveState();
   render();
-
-  // Check if phase just completed
-  PROJECT.forEach(phase => {
-    const s = getPhaseStats(phase);
-    if (s.pct === 100) {
-      showToast(`🎉 ${phase.phase}: ${phase.title} tamamlandı!`);
-    }
-  });
 }
 
-function toggleCategory(catKey) {
-  state.collapsed[catKey] = !state.collapsed[catKey];
+function toggleCategory(key) {
+  state.collapsed[key] = !state.collapsed[key];
+  if (!state.collapsed[key]) delete state.collapsed[key];
   saveState();
-  renderPhases();
+  render();
 }
 
 function togglePhaseFilter(phaseId) {
@@ -1217,101 +2229,60 @@ function togglePhaseFilter(phaseId) {
   render();
 }
 
-function showToast(msg) {
-  const toast = document.getElementById("toast");
-  toast.textContent = msg;
-  toast.classList.add("show");
-  setTimeout(() => toast.classList.remove("show"), 3000);
+function setFilter(f, el) {
+  activeFilter = f;
+  document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+  el.classList.add("active");
+  render();
 }
 
-// ═══════════════════════════════════════
-//  FILTER & SEARCH
-// ═══════════════════════════════════════
-document.getElementById("filter-bar").addEventListener("click", (e) => {
-  if (e.target.classList.contains("filter-btn")) {
-    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
-    e.target.classList.add("active");
-    activeFilter = e.target.dataset.filter;
-    renderPhases();
-  }
-});
-
-document.getElementById("search").addEventListener("input", (e) => {
-  searchQuery = e.target.value;
-  renderPhases();
-});
-
-document.getElementById("reset-btn").addEventListener("click", () => {
-  if (confirm("Tüm ilerleme sıfırlansın mı? Bu işlem geri alınamaz!")) {
-    state = { done: {}, notes: "", collapsed: {} };
-    saveState();
-    document.getElementById("notes").value = "";
-    render();
-    showToast("Tüm ilerleme sıfırlandı");
-  }
-});
-
-// ═══════════════════════════════════════
-//  NOTES
-// ═══════════════════════════════════════
-const notesEl = document.getElementById("notes");
-notesEl.value = state.notes || "";
-notesEl.addEventListener("input", () => {
-  state.notes = notesEl.value;
-  saveState();
-});
-
-// ═══════════════════════════════════════
-//  EXPORT / IMPORT
-// ═══════════════════════════════════════
-document.getElementById("export-json").addEventListener("click", () => {
-  const data = {
-    version: 1,
-    exported_at: new Date().toISOString(),
-    state: state,
-    stats: getTotalStats()
-  };
-  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+function exportJSON() {
+  const data = JSON.stringify(state, null, 2);
+  const blob = new Blob([data], { type: "application/json" });
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
-  a.href = url;
-  a.download = `fm-proje-ilerleme-${new Date().toISOString().split('T')[0]}.json`;
-  a.click();
+  a.href = url; a.download = "fm-tracker-backup.json"; a.click();
   URL.revokeObjectURL(url);
-  showToast("İlerleme dışa aktarıldı");
-});
+}
 
-document.getElementById("import-json").addEventListener("click", () => {
-  document.getElementById("import-file").click();
-});
-
-document.getElementById("import-file").addEventListener("change", (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      const data = JSON.parse(ev.target.result);
-      if (data.state) {
-        state = data.state;
-        saveState();
-        notesEl.value = state.notes || "";
-        render();
-        showToast("İlerleme içe aktarıldı");
-      }
-    } catch(err) {
-      alert("Geçersiz JSON dosyası");
-    }
+function importJSON() {
+  const input = document.createElement("input");
+  input.type = "file"; input.accept = ".json";
+  input.onchange = (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      try {
+        const imported = JSON.parse(ev.target.result);
+        if (imported.done) {
+          state = imported;
+          saveState();
+          render();
+          document.getElementById("notes-area").value = state.notes || "";
+          alert("✅ İçe aktarma başarılı!");
+        }
+      } catch(err) { alert("❌ Geçersiz dosya formatı"); }
+    };
+    reader.readAsText(file);
   };
-  reader.readAsText(file);
-  e.target.value = "";
-});
+  input.click();
+}
+
+function resetAll() {
+  if (confirm("⚠️ Tüm ilerleme sıfırlansın mı? Bu işlem geri alınamaz!")) {
+    state = { done: {}, notes: "", collapsed: {} };
+    saveState();
+    document.getElementById("notes-area").value = "";
+    render();
+  }
+}
 
 // ═══════════════════════════════════════
 //  INIT
 // ═══════════════════════════════════════
 render();
+document.getElementById("notes-area").value = state.notes || "";
 </script>
-
 </body>
 </html>
