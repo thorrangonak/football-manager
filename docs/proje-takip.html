@@ -1,0 +1,1317 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>⚽ Football Manager — Proje Takip</title>
+<link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0e17;
+    --bg-card: #111827;
+    --bg-card-hover: #1a2332;
+    --bg-surface: #0f1520;
+    --border: #1e293b;
+    --border-active: #334155;
+    --text: #e2e8f0;
+    --text-dim: #64748b;
+    --text-muted: #475569;
+    --green: #10b981;
+    --green-dim: #065f46;
+    --green-glow: rgba(16, 185, 129, 0.15);
+    --blue: #3b82f6;
+    --blue-dim: #1e3a5f;
+    --blue-glow: rgba(59, 130, 246, 0.12);
+    --orange: #f59e0b;
+    --orange-dim: #78350f;
+    --red: #ef4444;
+    --purple: #8b5cf6;
+    --purple-dim: #4c1d95;
+    --cyan: #06b6d4;
+    --pink: #ec4899;
+    --yellow: #eab308;
+    --radius: 12px;
+    --radius-sm: 8px;
+    --radius-xs: 6px;
+    --shadow: 0 4px 24px rgba(0,0,0,0.3);
+    --transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Outfit', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── Scrollbar ── */
+  ::-webkit-scrollbar { width: 6px; }
+  ::-webkit-scrollbar-track { background: var(--bg); }
+  ::-webkit-scrollbar-thumb { background: var(--border-active); border-radius: 3px; }
+  ::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+  /* ── Background Pattern ── */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% -20%, rgba(59,130,246,0.08), transparent),
+      radial-gradient(ellipse 60% 40% at 80% 100%, rgba(16,185,129,0.05), transparent);
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── Layout ── */
+  .app { position: relative; z-index: 1; }
+
+  .header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(10, 14, 23, 0.85);
+    backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+  }
+
+  .header-inner {
+    max-width: 1400px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 72px;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+
+  .logo-icon {
+    width: 42px;
+    height: 42px;
+    background: linear-gradient(135deg, var(--green), var(--blue));
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 22px;
+    box-shadow: 0 0 20px rgba(16,185,129,0.2);
+  }
+
+  .logo-text {
+    font-size: 20px;
+    font-weight: 700;
+    letter-spacing: -0.5px;
+  }
+
+  .logo-text span { color: var(--green); }
+
+  .header-stats {
+    display: flex;
+    gap: 28px;
+    align-items: center;
+  }
+
+  .header-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+  }
+
+  .header-stat-value {
+    font-size: 22px;
+    font-weight: 800;
+    font-family: 'JetBrains Mono', monospace;
+    letter-spacing: -1px;
+  }
+
+  .header-stat-label {
+    font-size: 11px;
+    color: var(--text-dim);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    font-weight: 500;
+  }
+
+  .main {
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  /* ── Overview Cards ── */
+  .overview {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 16px;
+    margin-bottom: 2.5rem;
+  }
+
+  .overview-card {
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 20px;
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .overview-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: var(--card-accent);
+    opacity: 0.7;
+  }
+
+  .overview-card:hover {
+    border-color: var(--border-active);
+    transform: translateY(-2px);
+    box-shadow: var(--shadow);
+  }
+
+  .overview-card.active {
+    border-color: var(--card-accent);
+    box-shadow: 0 0 24px rgba(var(--card-accent-rgb), 0.1);
+  }
+
+  .oc-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+  .oc-phase { font-size: 11px; color: var(--text-dim); text-transform: uppercase; letter-spacing: 1.5px; font-weight: 600; }
+  .oc-icon { font-size: 20px; }
+  .oc-title { font-size: 15px; font-weight: 600; margin-bottom: 16px; line-height: 1.3; }
+  .oc-progress-bar { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin-bottom: 8px; }
+  .oc-progress-fill { height: 100%; border-radius: 3px; transition: width 0.6s ease; }
+  .oc-stats { display: flex; justify-content: space-between; font-size: 12px; color: var(--text-dim); }
+  .oc-stats strong { color: var(--text); font-family: 'JetBrains Mono', monospace; font-size: 13px; }
+
+  /* ── Phase Section ── */
+  .phase-section {
+    margin-bottom: 2rem;
+    animation: fadeIn 0.4s ease;
+  }
+
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(12px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .phase-header {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 1.5rem;
+    padding-bottom: 16px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .phase-badge {
+    padding: 6px 14px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+  }
+
+  .phase-title {
+    font-size: 24px;
+    font-weight: 800;
+    letter-spacing: -0.5px;
+  }
+
+  .phase-desc {
+    font-size: 14px;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+
+  /* ── Category ── */
+  .category {
+    margin-bottom: 1.5rem;
+  }
+
+  .category-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    cursor: pointer;
+    user-select: none;
+    padding: 8px 0;
+  }
+
+  .category-header:hover .category-title { color: var(--text); }
+
+  .category-chevron {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.2s;
+    color: var(--text-dim);
+    font-size: 12px;
+  }
+
+  .category-chevron.open { transform: rotate(90deg); }
+
+  .category-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--text-muted);
+    text-transform: uppercase;
+    letter-spacing: 1px;
+    transition: color 0.2s;
+  }
+
+  .category-count {
+    font-size: 12px;
+    color: var(--text-dim);
+    font-family: 'JetBrains Mono', monospace;
+    margin-left: auto;
+  }
+
+  .category-tasks {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    overflow: hidden;
+    transition: max-height 0.3s ease;
+  }
+
+  .category-tasks.collapsed {
+    max-height: 0 !important;
+    overflow: hidden;
+  }
+
+  /* ── Task Item ── */
+  .task {
+    display: flex;
+    align-items: flex-start;
+    gap: 14px;
+    padding: 14px 16px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    transition: var(--transition);
+    position: relative;
+  }
+
+  .task:hover {
+    background: var(--bg-card-hover);
+    border-color: var(--border-active);
+  }
+
+  .task.done {
+    opacity: 0.55;
+    background: var(--bg-surface);
+  }
+
+  .task.done .task-text { text-decoration: line-through; color: var(--text-dim); }
+
+  .checkbox {
+    width: 22px;
+    height: 22px;
+    min-width: 22px;
+    border: 2px solid var(--border-active);
+    border-radius: var(--radius-xs);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: var(--transition);
+    margin-top: 1px;
+  }
+
+  .task:hover .checkbox { border-color: var(--green); }
+
+  .task.done .checkbox {
+    background: var(--green);
+    border-color: var(--green);
+  }
+
+  .checkbox svg {
+    width: 14px;
+    height: 14px;
+    stroke: white;
+    stroke-width: 3;
+    fill: none;
+    opacity: 0;
+    transform: scale(0.5);
+    transition: var(--transition);
+  }
+
+  .task.done .checkbox svg {
+    opacity: 1;
+    transform: scale(1);
+  }
+
+  .task-content { flex: 1; min-width: 0; }
+
+  .task-text {
+    font-size: 14px;
+    font-weight: 500;
+    line-height: 1.5;
+    transition: var(--transition);
+  }
+
+  .task-meta {
+    display: flex;
+    gap: 8px;
+    margin-top: 6px;
+    flex-wrap: wrap;
+  }
+
+  .task-tag {
+    font-size: 11px;
+    padding: 2px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+    letter-spacing: 0.3px;
+  }
+
+  .tag-critical { background: rgba(239,68,68,0.15); color: var(--red); }
+  .tag-important { background: rgba(245,158,11,0.15); color: var(--orange); }
+  .tag-normal { background: rgba(59,130,246,0.15); color: var(--blue); }
+  .tag-engine { background: rgba(139,92,246,0.15); color: var(--purple); }
+  .tag-db { background: rgba(6,182,212,0.15); color: var(--cyan); }
+  .tag-bot { background: rgba(236,72,153,0.15); color: var(--pink); }
+  .tag-web { background: rgba(234,179,8,0.15); color: var(--yellow); }
+  .tag-api { background: rgba(16,185,129,0.15); color: var(--green); }
+
+  /* ── Notes Panel ── */
+  .notes-section {
+    margin-top: 3rem;
+    padding-top: 2rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .notes-area {
+    width: 100%;
+    min-height: 160px;
+    background: var(--bg-card);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 16px;
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .notes-area:focus { border-color: var(--blue); }
+  .notes-area::placeholder { color: var(--text-muted); }
+
+  /* ── Filter Bar ── */
+  .filter-bar {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    align-items: center;
+  }
+
+  .filter-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--text-dim);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .filter-btn:hover { border-color: var(--border-active); color: var(--text); }
+  .filter-btn.active { background: var(--blue); border-color: var(--blue); color: white; }
+
+  .filter-sep {
+    width: 1px;
+    height: 24px;
+    background: var(--border);
+    margin: 0 4px;
+  }
+
+  .search-input {
+    flex: 1;
+    min-width: 200px;
+    padding: 8px 16px;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    background: var(--bg-card);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .search-input:focus { border-color: var(--blue); }
+  .search-input::placeholder { color: var(--text-muted); }
+
+  /* ── Reset Button ── */
+  .reset-btn {
+    padding: 8px 16px;
+    border: 1px solid var(--red);
+    border-radius: 20px;
+    background: transparent;
+    color: var(--red);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+    margin-left: auto;
+  }
+
+  .reset-btn:hover { background: var(--red); color: white; }
+
+  /* ── Export ── */
+  .export-bar {
+    display: flex;
+    gap: 10px;
+    margin-top: 1rem;
+  }
+
+  .export-btn {
+    padding: 8px 18px;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    background: var(--bg-card);
+    color: var(--text);
+    font-family: 'Outfit', sans-serif;
+    font-size: 13px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: var(--transition);
+  }
+
+  .export-btn:hover { border-color: var(--green); color: var(--green); }
+
+  /* ── Toast ── */
+  .toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    padding: 14px 24px;
+    background: var(--green);
+    color: white;
+    border-radius: var(--radius-sm);
+    font-weight: 600;
+    font-size: 14px;
+    box-shadow: 0 8px 32px rgba(16,185,129,0.3);
+    transform: translateY(100px);
+    opacity: 0;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 1000;
+  }
+
+  .toast.show { transform: translateY(0); opacity: 1; }
+
+  /* ── Responsive ── */
+  @media (max-width: 768px) {
+    .header { padding: 0 1rem; }
+    .main { padding: 1rem; }
+    .header-stats { gap: 16px; }
+    .header-stat-value { font-size: 18px; }
+    .overview { grid-template-columns: repeat(2, 1fr); }
+    .phase-header { flex-wrap: wrap; }
+    .phase-desc { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app" id="app">
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">⚽</div>
+        <div class="logo-text">Football <span>Manager</span> — Proje Takip</div>
+      </div>
+      <div class="header-stats">
+        <div class="header-stat">
+          <div class="header-stat-value" id="stat-done" style="color:var(--green)">0</div>
+          <div class="header-stat-label">Tamamlanan</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value" id="stat-total">0</div>
+          <div class="header-stat-label">Toplam Görev</div>
+        </div>
+        <div class="header-stat">
+          <div class="header-stat-value" id="stat-pct" style="color:var(--blue)">0%</div>
+          <div class="header-stat-label">İlerleme</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+    <!-- Overview cards inserted by JS -->
+    <div class="overview" id="overview"></div>
+
+    <!-- Filter -->
+    <div class="filter-bar" id="filter-bar">
+      <button class="filter-btn active" data-filter="all">Tümü</button>
+      <button class="filter-btn" data-filter="todo">Yapılacak</button>
+      <button class="filter-btn" data-filter="done">Tamamlanan</button>
+      <div class="filter-sep"></div>
+      <input type="text" class="search-input" id="search" placeholder="Görev ara...">
+      <button class="reset-btn" id="reset-btn">Sıfırla</button>
+    </div>
+
+    <!-- Phases inserted by JS -->
+    <div id="phases-container"></div>
+
+    <!-- Notes -->
+    <div class="notes-section">
+      <h2 style="font-size:20px; font-weight:700; margin-bottom:12px;">📝 Notlar</h2>
+      <textarea class="notes-area" id="notes" placeholder="Proje notlarını buraya yaz..."></textarea>
+      <div class="export-bar">
+        <button class="export-btn" id="export-json">📦 JSON Dışa Aktar</button>
+        <button class="export-btn" id="import-json">📥 JSON İçe Aktar</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<div class="toast" id="toast"></div>
+<input type="file" id="import-file" accept=".json" style="display:none">
+
+<script>
+// ═══════════════════════════════════════
+//  PROJECT DATA — Tüm Fazlar ve Görevler
+// ═══════════════════════════════════════
+const PROJECT = [
+  {
+    id: "faz0",
+    phase: "Faz 0",
+    title: "Proje Altyapısı & Kurulum",
+    icon: "🏗️",
+    color: "#64748b",
+    colorRGB: "100,116,139",
+    desc: "Hafta 0",
+    categories: [
+      {
+        name: "Geliştirme Ortamı",
+        tasks: [
+          { id: "f0-01", text: "Node.js, TypeScript, npm kurulumu ve yapılandırma", tags: ["critical"] },
+          { id: "f0-02", text: "Git repo oluşturma, .gitignore, branch stratejisi belirleme", tags: ["critical"] },
+          { id: "f0-03", text: "ESLint + Prettier konfigürasyonu", tags: ["normal"] },
+          { id: "f0-04", text: "Monorepo yapısı kurulumu (src/bot, src/api, src/engine, src/shared, web/)", tags: ["important"] },
+          { id: "f0-05", text: "tsconfig.json ve path alias ayarları (@shared, @engine, @bot vb.)", tags: ["normal"] },
+        ]
+      },
+      {
+        name: "Altyapı Servisleri",
+        tasks: [
+          { id: "f0-06", text: "Docker Compose: PostgreSQL 16 + Redis 7 container kurulumu", tags: ["critical", "db"] },
+          { id: "f0-07", text: "Prisma ORM kurulumu ve bağlantı testi", tags: ["critical", "db"] },
+          { id: "f0-08", text: "Redis (ioredis) bağlantı testi", tags: ["important", "db"] },
+          { id: "f0-09", text: "BullMQ kuyruk sistemi kurulumu ve bağlantı testi", tags: ["important"] },
+          { id: "f0-10", text: "Winston logger yapılandırması (dosya + konsol)", tags: ["normal"] },
+          { id: "f0-11", text: ".env dosyası ve environment config modülü", tags: ["critical"] },
+        ]
+      },
+      {
+        name: "Temel Bot Kurulumu",
+        tasks: [
+          { id: "f0-12", text: "Telegram BotFather üzerinden bot oluşturma ve token alma", tags: ["critical", "bot"] },
+          { id: "f0-13", text: "grammy framework kurulumu ve basit /start komutu testi", tags: ["critical", "bot"] },
+          { id: "f0-14", text: "Bot middleware yapısı (session, error handler, logger)", tags: ["important", "bot"] },
+        ]
+      }
+    ]
+  },
+  {
+    id: "faz1",
+    phase: "Faz 1",
+    title: "Temel Oyun Mekaniği (MVP)",
+    icon: "🔵",
+    color: "#3b82f6",
+    colorRGB: "59,130,246",
+    desc: "Hafta 1-3",
+    categories: [
+      {
+        name: "Veritabanı Şeması",
+        tasks: [
+          { id: "f1-01", text: "User modeli: tg_id, username, level, xp, coins, created_at", tags: ["critical", "db"] },
+          { id: "f1-02", text: "Team modeli: user_id, name, formation, tactic, power_rating", tags: ["critical", "db"] },
+          { id: "f1-03", text: "Player modeli: 7 ana stat (spd/sht/pas/drb/def/phy/ref) + 4 dinamik stat (moral/form/kondisyon/sakatlık)", tags: ["critical", "db"] },
+          { id: "f1-04", text: "Player meta: yaş, pozisyon, alternatif pozisyon, piyasa değeri, maaş, overall", tags: ["critical", "db"] },
+          { id: "f1-05", text: "League modeli: name, season, status, type (A/B)", tags: ["important", "db"] },
+          { id: "f1-06", text: "LeagueTeam (lig-takım ilişkisi): puan, galibiyet, beraberlik, mağlubiyet, AG, YG", tags: ["important", "db"] },
+          { id: "f1-07", text: "Match modeli: home/away team, scheduled_at, status, skor", tags: ["critical", "db"] },
+          { id: "f1-08", text: "MatchEvent modeli: dakika, olay tipi, oyuncu, detay", tags: ["important", "db"] },
+          { id: "f1-09", text: "Prisma migration çalıştır ve doğrula", tags: ["critical", "db"] },
+        ]
+      },
+      {
+        name: "Oyuncu Oluşturma Sistemi",
+        tasks: [
+          { id: "f1-10", text: "Rastgele futbolcu üretim fonksiyonu (pozisyon bazlı stat dağılımı)", tags: ["critical", "engine"] },
+          { id: "f1-11", text: "Pozisyona göre ağırlıklı overall hesaplama formülü (GK, CB, ST vb.)", tags: ["critical", "engine"] },
+          { id: "f1-12", text: "Rastgele isim havuzu (Türkçe isim/soyisim listesi)", tags: ["normal"] },
+          { id: "f1-13", text: "Yaş bazlı stat dağılım kuralları (genç=düşük ama gelişir, yaşlı=yüksek ama geriler)", tags: ["important", "engine"] },
+          { id: "f1-14", text: "Piyasa değeri hesaplama fonksiyonu (stat × yaş × form çarpanı)", tags: ["important", "engine"] },
+          { id: "f1-15", text: "Maaş hesaplama fonksiyonu (piyasa değeri × 0.02)", tags: ["normal", "engine"] },
+        ]
+      },
+      {
+        name: "Starter Pack & Onboarding",
+        tasks: [
+          { id: "f1-16", text: "18 futbolculuk starter pack üretici (pozisyon dağılımlı: 2GK, 3CB, 1LB, 1RB, 3CM, 1LW, 1RW, 2ST, 1CAM, 1WB, 1CDM)", tags: ["critical", "engine"] },
+          { id: "f1-17", text: "Starter OVR aralığı: 45-60, 1 yıldız oyuncu 65-70 garantisi", tags: ["important", "engine"] },
+          { id: "f1-18", text: "Başlangıç bakiye: 50.000 coin ataması", tags: ["normal"] },
+        ]
+      },
+      {
+        name: "Telegram Bot — Kayıt & Takım",
+        tasks: [
+          { id: "f1-19", text: "/start komutu: Kullanıcı kaydı + hoş geldin mesajı", tags: ["critical", "bot"] },
+          { id: "f1-20", text: "Takım oluşturma akışı: İsim girme → Starter pack atama → Onay", tags: ["critical", "bot"] },
+          { id: "f1-21", text: "Inline keyboard: Ana menü (Kadro, Antrenman, Lig, Transfer, Profil)", tags: ["critical", "bot"] },
+          { id: "f1-22", text: "/kadro komutu: İlk 11 + yedekleri listele", tags: ["important", "bot"] },
+          { id: "f1-23", text: "/oyuncu [isim] komutu: Detaylı futbolcu kartı göster (tüm statlar)", tags: ["important", "bot"] },
+          { id: "f1-24", text: "Formasyon seçimi: 6 formasyon inline butonlarla göster ve seç", tags: ["important", "bot"] },
+          { id: "f1-25", text: "Taktik seçimi: Hücum/Dengeli/Defansif/Tüm Güç Hücum inline butonlar", tags: ["important", "bot"] },
+          { id: "f1-26", text: "Kadro düzenleme: Oyuncu yer değiştir (asil ↔ yedek)", tags: ["important", "bot"] },
+          { id: "f1-27", text: "Nasıl Oynanır rehberi: 5 adımlık interaktif tur + 5.000 coin ödül", tags: ["normal", "bot"] },
+        ]
+      },
+      {
+        name: "Maç Simülasyon Motoru (Temel)",
+        tasks: [
+          { id: "f1-28", text: "Tick sistemi: 60 tick = 1 maç = 90 dk oyun süresi", tags: ["critical", "engine"] },
+          { id: "f1-29", text: "Etkin Overall hesaplama: Overall × (Moral×0.15 + Form×0.25 + Kondisyon×0.60)", tags: ["critical", "engine"] },
+          { id: "f1-30", text: "Formasyon bonus sistemi (hücum/orta saha/defans %'leri)", tags: ["important", "engine"] },
+          { id: "f1-31", text: "Taktik bonus sistemi (hücum +15/-10, defansif -10/+15 vb.)", tags: ["important", "engine"] },
+          { id: "f1-32", text: "Olay olasılık tablosu: %35 olay/tick, olay tipi dağılımları", tags: ["critical", "engine"] },
+          { id: "f1-33", text: "Gol olasılık formülü: şut_gücü vs kurtarış_gücü + random factor", tags: ["critical", "engine"] },
+          { id: "f1-34", text: "Faul, sarı kart, kırmızı kart olayları", tags: ["important", "engine"] },
+          { id: "f1-35", text: "Sakatlık olay sistemi (hafif %8, orta %3, ağır %1 × PHY direnci)", tags: ["important", "engine"] },
+          { id: "f1-36", text: "Ev sahibi avantajı: +3 bonus", tags: ["normal", "engine"] },
+          { id: "f1-37", text: "Takım gücü farkı etkisi: her 5 puan = %8 lehine dönüşüm", tags: ["important", "engine"] },
+          { id: "f1-38", text: "Maç sonucu kaydetme (skor, olaylar, istatistikler DB'ye)", tags: ["critical", "engine"] },
+          { id: "f1-39", text: "Maç sonrası stat güncellemeleri (kondisyon -15, pasif gelişim, moral)", tags: ["important", "engine"] },
+          { id: "f1-40", text: "Maç sonucu Telegram bildirim mesajı", tags: ["important", "bot"] },
+        ]
+      },
+      {
+        name: "Basit Lig Sistemi",
+        tasks: [
+          { id: "f1-41", text: "Fikstür oluşturma algoritması (round-robin)", tags: ["critical", "engine"] },
+          { id: "f1-42", text: "Puan tablosu hesaplama (G=3, B=1, M=0) ve sıralama", tags: ["critical", "engine"] },
+          { id: "f1-43", text: "/ligtablosu komutu: Puan tablosu göster (sıra, takım, O, G, B, M, AG, YG, P)", tags: ["important", "bot"] },
+          { id: "f1-44", text: "/fikstur komutu: Gelecek maçlar listesi", tags: ["important", "bot"] },
+          { id: "f1-45", text: "/sonuclar komutu: Son oynanan maç sonuçları", tags: ["normal", "bot"] },
+        ]
+      }
+    ]
+  },
+  {
+    id: "faz2",
+    phase: "Faz 2",
+    title: "Ekonomi & Gelişim",
+    icon: "🟢",
+    color: "#10b981",
+    colorRGB: "16,185,129",
+    desc: "Hafta 4-5",
+    categories: [
+      {
+        name: "Ekonomi Sistemi",
+        tasks: [
+          { id: "f2-01", text: "Maç ödülleri: Galibiyet 5K, Beraberlik 2K, Mağlubiyet 500", tags: ["critical", "engine"] },
+          { id: "f2-02", text: "Haftalık otomatik maaş kesimi (tüm kadro maaş toplamı)", tags: ["critical", "engine"] },
+          { id: "f2-03", text: "Maaş ödenmezse moral -30 cezası", tags: ["important", "engine"] },
+          { id: "f2-04", text: "Stadyum bakım ücreti: Haftalık 5.000 (ödenmezse ev avantajı kalkıyor)", tags: ["important", "engine"] },
+          { id: "f2-05", text: "Günlük giriş ödülü: 1.000 coin (/gunluk komutu)", tags: ["normal", "bot"] },
+          { id: "f2-06", text: "Bakiye gösterimi ve gelir/gider geçmişi", tags: ["normal", "bot"] },
+          { id: "f2-07", text: "Ekonomi denge kontrolü: Enflasyon testi (25-30 oyuncuyla simülasyon)", tags: ["important", "engine"] },
+        ]
+      },
+      {
+        name: "Transfer Pazarı",
+        tasks: [
+          { id: "f2-08", text: "Transfer pazarı: Sistem tarafından üretilen oyuncular (NPC satışa sunar)", tags: ["critical", "engine"] },
+          { id: "f2-09", text: "Oyuncular arası transfer teklifi gönder/al mekanizması", tags: ["important", "bot"] },
+          { id: "f2-10", text: "Transfer fiyat hesabı: Piyasa değeri + talep çarpanı", tags: ["important", "engine"] },
+          { id: "f2-11", text: "Transfer vergisi: Düşük ligden alımda +%50 fiyat farkı", tags: ["normal", "engine"] },
+          { id: "f2-12", text: "Yeni oyuncu ilk hafta transfer engeli (manipülasyon önlemi)", tags: ["normal", "engine"] },
+          { id: "f2-13", text: "Anti-abuse: Aynı 2 kullanıcı arasında günde max 1 transfer", tags: ["important", "engine"] },
+          { id: "f2-14", text: "Transfer modeli: from_team, to_team, player, price, timestamp → DB", tags: ["important", "db"] },
+          { id: "f2-15", text: "/transfer komutu: Pazarı gör, teklif gönder, kabul/red", tags: ["critical", "bot"] },
+        ]
+      },
+      {
+        name: "Antrenman Sistemi",
+        tasks: [
+          { id: "f2-16", text: "Pasif gelişim: Maç sonrası oynayan oyunculara +0.1-0.3 rastgele stat", tags: ["critical", "engine"] },
+          { id: "f2-17", text: "Aktif antrenman seçenekleri: Kondisyon/Teknik/Taktik/Fizik/GK kampları", tags: ["critical", "engine"] },
+          { id: "f2-18", text: "Yoğun Kamp (5K/oyuncu, +1.0 stat, kondisyon -20) ve Elit Kamp (10K, +1.0×2 stat)", tags: ["important", "engine"] },
+          { id: "f2-19", text: "Antrenman cooldown sistemi (12-48 saat arası)", tags: ["important", "engine"] },
+          { id: "f2-20", text: "Yaş bazlı gelişim çarpanı (17-21: ×1.5, 34+: gerileme)", tags: ["critical", "engine"] },
+          { id: "f2-21", text: "Catchup mekanizması: Düşük OVR oyuncular daha hızlı gelişir (40-55: ×2.0)", tags: ["important", "engine"] },
+          { id: "f2-22", text: "/antrenman komutu: Oyuncu seç, kamp türü seç, başlat", tags: ["critical", "bot"] },
+        ]
+      },
+      {
+        name: "Seviye Sistemi",
+        tasks: [
+          { id: "f2-23", text: "XP kazanma kuralları: Maç oyna, gol at, kazandır, antrenman yap", tags: ["critical", "engine"] },
+          { id: "f2-24", text: "Seviye formülü: Her seviye artan XP gereksinimi", tags: ["important", "engine"] },
+          { id: "f2-25", text: "Seviye atlama ödülü: 5.000 × seviye coin", tags: ["normal", "engine"] },
+          { id: "f2-26", text: "Seviye kilitleri: Belli özelliklerin seviye ile açılması", tags: ["important", "engine"] },
+          { id: "f2-27", text: "/profil komutu: Seviye, XP, istatistikler, başarılar", tags: ["important", "bot"] },
+        ]
+      },
+      {
+        name: "Sakatlık & Kart Detayı",
+        tasks: [
+          { id: "f2-28", text: "Sakatlık süreleri: Hafif 1 maç, Orta 2-3, Ağır 4-6", tags: ["important", "engine"] },
+          { id: "f2-29", text: "Hızlı iyileşme mekanizması (coin ile süre kısaltma)", tags: ["normal", "engine"] },
+          { id: "f2-30", text: "Kümülatif sarı kart: Her 5 sarı = 1 maç ceza", tags: ["important", "engine"] },
+          { id: "f2-31", text: "Kırmızı kart: Anında atılma + 1 maç ceza", tags: ["important", "engine"] },
+          { id: "f2-32", text: "Kondisyon < 30 → sakatlık riski ×2, < 15 → ×3", tags: ["normal", "engine"] },
+        ]
+      },
+      {
+        name: "Antrenör Sistemi",
+        tasks: [
+          { id: "f2-33", text: "Bronz/Gümüş/Altın antrenör: 7 günlük geçici buff (+%20/40/60 antrenman etkisi)", tags: ["normal", "engine"] },
+          { id: "f2-34", text: "/antrenor komutu: Antrenör kirala, aktif antrenör göster", tags: ["normal", "bot"] },
+        ]
+      }
+    ]
+  },
+  {
+    id: "faz3",
+    phase: "Faz 3",
+    title: "Lig & Zamanlama Sistemi",
+    icon: "🟡",
+    color: "#f59e0b",
+    colorRGB: "245,158,11",
+    desc: "Hafta 6-7",
+    categories: [
+      {
+        name: "Lig Yapısı",
+        tasks: [
+          { id: "f3-01", text: "2 lig sistemi: A Ligi (üst) + B Ligi (alt), her biri ~13-15 takım", tags: ["critical", "engine"] },
+          { id: "f3-02", text: "Dinamik lig ataması: Yeni oyuncular → B Ligi, güç bazlı denge", tags: ["important", "engine"] },
+          { id: "f3-03", text: "Relegation/Promotion: A son 2 → B'ye düşer, B ilk 2 → A'ya çıkar", tags: ["critical", "engine"] },
+          { id: "f3-04", text: "Sezon modeli: season number, start_date, end_date, status → DB", tags: ["important", "db"] },
+        ]
+      },
+      {
+        name: "Sezon Döngüsü",
+        tasks: [
+          { id: "f3-05", text: "8 haftalık sezon: 7 hafta lig + 1 hafta transfer dönemi", tags: ["critical", "engine"] },
+          { id: "f3-06", text: "Sezon başlangıç: Fikstür oluştur, takımları sıfırla, lige ata", tags: ["critical", "engine"] },
+          { id: "f3-07", text: "Sezon sonu: Ödülleri dağıt, küme düşme/çıkma uygula", tags: ["critical", "engine"] },
+          { id: "f3-08", text: "Sezon sonu ödülleri: Şampiyon 100K, 2. 60K, 3. 35K", tags: ["important", "engine"] },
+          { id: "f3-09", text: "Transfer dönemi: Sezon arası 1 hafta serbest transfer", tags: ["important", "engine"] },
+        ]
+      },
+      {
+        name: "Otomatik Maç Zamanlama",
+        tasks: [
+          { id: "f3-10", text: "node-cron: Çarşamba + Cuma 20:00 maç günleri zamanlayıcı", tags: ["critical", "engine"] },
+          { id: "f3-11", text: "BullMQ: Maç kuyruğu oluştur, 5'er dakika aralıkla maç başlat", tags: ["critical", "engine"] },
+          { id: "f3-12", text: "Maç öncesi kontrol: Minimum güç seviyesi, kadro yeterliliği", tags: ["important", "engine"] },
+          { id: "f3-13", text: "Kadro eksikse otomatik yedek ataması (en iyi yedek ilk 11'e)", tags: ["normal", "engine"] },
+          { id: "f3-14", text: "Sakatlar ve cezalılar otomatik kadro dışı", tags: ["important", "engine"] },
+        ]
+      },
+      {
+        name: "Bildirim Sistemi",
+        tasks: [
+          { id: "f3-15", text: "Maç 1 saat kala TG bildirim", tags: ["important", "bot"] },
+          { id: "f3-16", text: "Maç 10 dk kala TG bildirim", tags: ["important", "bot"] },
+          { id: "f3-17", text: "Maç başladı bildirimi (DM + grup)", tags: ["important", "bot"] },
+          { id: "f3-18", text: "Maç bitti bildirimi + skor özeti", tags: ["important", "bot"] },
+          { id: "f3-19", text: "Haftalık maaş kesildi bildirimi", tags: ["normal", "bot"] },
+          { id: "f3-20", text: "Sezon sonu rapor bildirimi", tags: ["normal", "bot"] },
+          { id: "f3-21", text: "Bildirim tercih sistemi: Oyuncu hangi bildirimleri alacağını seçer", tags: ["normal", "bot"] },
+        ]
+      },
+      {
+        name: "Yeni Oyuncu Dengeleme",
+        tasks: [
+          { id: "f3-22", text: "Yeni oyuncu koruma kalkanı: İlk 2 hafta %50 indirimli maaş/antrenman", tags: ["important", "engine"] },
+          { id: "f3-23", text: "Mağlubiyet teselli ödülü: İlk 2 hafta ekstra 2.000 coin", tags: ["normal", "engine"] },
+          { id: "f3-24", text: "Sezon ortası katılım: Sonraki sezon başına kadar dostluk maçları", tags: ["normal", "engine"] },
+        ]
+      }
+    ]
+  },
+  {
+    id: "faz4",
+    phase: "Faz 4",
+    title: "Match Tracker & Web Arayüzü",
+    icon: "🔴",
+    color: "#ef4444",
+    colorRGB: "239,68,68",
+    desc: "Hafta 8-10",
+    categories: [
+      {
+        name: "API Sunucusu",
+        tasks: [
+          { id: "f4-01", text: "Express/Fastify API sunucusu kurulumu", tags: ["critical", "api"] },
+          { id: "f4-02", text: "JWT tabanlı auth (Telegram Login Widget ile doğrulama)", tags: ["critical", "api"] },
+          { id: "f4-03", text: "REST endpoint'leri: /teams, /players, /leagues, /matches, /transfers", tags: ["critical", "api"] },
+          { id: "f4-04", text: "Rate limiting middleware (dakikada max 60 istek)", tags: ["important", "api"] },
+          { id: "f4-05", text: "CORS yapılandırması (web frontend için)", tags: ["normal", "api"] },
+        ]
+      },
+      {
+        name: "Socket.IO — Gerçek Zamanlı",
+        tasks: [
+          { id: "f4-06", text: "Socket.IO sunucu kurulumu (Express ile entegre)", tags: ["critical", "api"] },
+          { id: "f4-07", text: "join_match event: Odaya katıl, maç akışını dinle", tags: ["critical", "api"] },
+          { id: "f4-08", text: "match_event emit: Her tick'te olay payload'ı gönder", tags: ["critical", "engine"] },
+          { id: "f4-09", text: "match_end event: Maç sonu skor ve istatistik", tags: ["important", "api"] },
+          { id: "f4-10", text: "live_matches event: Anlık oynanan maçlar listesi", tags: ["important", "api"] },
+        ]
+      },
+      {
+        name: "TG Bot Match Tracker",
+        tasks: [
+          { id: "f4-11", text: "Maç başında mesaj gönder, her önemli olayda editMessageText ile güncelle", tags: ["critical", "bot"] },
+          { id: "f4-12", text: "Rate limit: Max 3 saniyede 1 edit (TG API limiti)", tags: ["important", "bot"] },
+          { id: "f4-13", text: "Tracker mesajı formatı: Skor, olaylar listesi, ilerleme barı", tags: ["important", "bot"] },
+          { id: "f4-14", text: "Yenile ve İstatistik inline butonları", tags: ["normal", "bot"] },
+        ]
+      },
+      {
+        name: "Web Frontend — Next.js",
+        tasks: [
+          { id: "f4-15", text: "Next.js projesi kurulumu (App Router, TailwindCSS)", tags: ["critical", "web"] },
+          { id: "f4-16", text: "Telegram Login entegrasyonu (web auth)", tags: ["critical", "web"] },
+          { id: "f4-17", text: "Dashboard sayfası: Takım özeti, yaklaşan maçlar, bakiye, seviye", tags: ["critical", "web"] },
+          { id: "f4-18", text: "Takım sayfası: Kadro listesi, formasyon görünümü, oyuncu detay kartları", tags: ["important", "web"] },
+          { id: "f4-19", text: "Lig sayfası: Puan tablosu, fikstür, geçmiş sonuçlar", tags: ["important", "web"] },
+          { id: "f4-20", text: "Match Tracker sayfası: Gerçek zamanlı maç izleme (Socket.IO client)", tags: ["critical", "web"] },
+          { id: "f4-21", text: "Match Tracker UI: Skor, dakika, olay listesi, ilerleme barı, saha animasyonu", tags: ["important", "web"] },
+          { id: "f4-22", text: "Transfer pazarı sayfası: Oyuncu listele, filtrele, teklif gönder", tags: ["important", "web"] },
+          { id: "f4-23", text: "Profil sayfası: İstatistikler, başarılar, seviye bilgisi", tags: ["normal", "web"] },
+          { id: "f4-24", text: "Responsive tasarım: Mobil uyumluluk", tags: ["important", "web"] },
+        ]
+      },
+      {
+        name: "İstatistik Sayfaları",
+        tasks: [
+          { id: "f4-25", text: "Gol kralı, asist kralı, en çok katkı tablosu", tags: ["important", "web"] },
+          { id: "f4-26", text: "En iyi GK (clean sheet), en iyi defans, disiplin tablosu", tags: ["normal", "web"] },
+          { id: "f4-27", text: "En değerli futbolcu, en gelişen futbolcu tabloları", tags: ["normal", "web"] },
+          { id: "f4-28", text: "Takım bazlı detaylı istatistikler", tags: ["normal", "web"] },
+        ]
+      }
+    ]
+  },
+  {
+    id: "faz5",
+    phase: "Faz 5",
+    title: "Turnuvalar & Sosyal",
+    icon: "🟣",
+    color: "#8b5cf6",
+    colorRGB: "139,92,246",
+    desc: "Hafta 11-12",
+    categories: [
+      {
+        name: "Şampiyonlar Ligi",
+        tasks: [
+          { id: "f5-01", text: "A Ligi ilk 4 → Şampiyonlar Ligi'ne katılım hakkı", tags: ["critical", "engine"] },
+          { id: "f5-02", text: "Grup aşaması: 4'erli gruplar, çift devreli", tags: ["important", "engine"] },
+          { id: "f5-03", text: "Eleme aşaması: Çeyrek final → Yarı final → Final", tags: ["important", "engine"] },
+          { id: "f5-04", text: "Şampiyonlar Ligi ödülü: 200.000 coin + özel rozet", tags: ["normal", "engine"] },
+          { id: "f5-05", text: "Pazar günleri 18:00 maç zamanlaması", tags: ["important", "engine"] },
+        ]
+      },
+      {
+        name: "Kupa Turnuvası",
+        tasks: [
+          { id: "f5-06", text: "Knockout usulü kupa: Tüm takımlar katılır (A + B ligi)", tags: ["important", "engine"] },
+          { id: "f5-07", text: "Kura çekimi algoritması (seri başı + pot sistemi)", tags: ["normal", "engine"] },
+          { id: "f5-08", text: "Kupa ödülleri ve sezon sonu Süper Kupa (Lig şampiyonu vs Kupa şampiyonu)", tags: ["normal", "engine"] },
+        ]
+      },
+      {
+        name: "Sosyal Özellikler",
+        tasks: [
+          { id: "f5-09", text: "Lig TG grup otomatik oluşturma (maç sonuçları otomatik paylaşım)", tags: ["important", "bot"] },
+          { id: "f5-10", text: "/dostlukmaci @rakip komutu: Puan etkilemez, sadece XP", tags: ["important", "bot"] },
+          { id: "f5-11", text: "Günde max 3 dostluk maçı sınırı", tags: ["normal", "engine"] },
+          { id: "f5-12", text: "Haftalık MVP oylaması: En iyi performans → +5 moral tüm kadro", tags: ["normal", "bot"] },
+          { id: "f5-13", text: "All-Star maçı: Sezon sonu A Ligi vs B Ligi en iyi 11'ler", tags: ["normal", "engine"] },
+        ]
+      },
+      {
+        name: "Liderlik Tabloları",
+        tasks: [
+          { id: "f5-14", text: "Gol kralı, asist kralı liderlik tabloları (TG bot komutu)", tags: ["important", "bot"] },
+          { id: "f5-15", text: "Kullanıcı profil istatistikleri: Maç, galibiyet %, atılan/yenilen gol", tags: ["important", "bot"] },
+          { id: "f5-16", text: "Başarı (achievement) sistemi: 50 gol, 5 galibiyet serisi, şampiyonluk vb.", tags: ["normal", "engine"] },
+          { id: "f5-17", text: "Demir Adam: En uzun sakatlıksız maç serisi", tags: ["normal", "engine"] },
+        ]
+      }
+    ]
+  },
+  {
+    id: "faz6",
+    phase: "Faz 6",
+    title: "Polish, Güvenlik & Ölçekleme",
+    icon: "⚫",
+    color: "#94a3b8",
+    colorRGB: "148,163,184",
+    desc: "Hafta 13+",
+    categories: [
+      {
+        name: "Anti-Cheat & Güvenlik",
+        tasks: [
+          { id: "f6-01", text: "Çoklu hesap tespiti: TG hesap yaşı < 7 gün → kayıt engeli", tags: ["important", "api"] },
+          { id: "f6-02", text: "Aynı IP'den max 2 hesap kontrolü (web)", tags: ["normal", "api"] },
+          { id: "f6-03", text: "Transfer suistimali: Piyasa değerinin %50 altına satış → otomatik blok", tags: ["important", "engine"] },
+          { id: "f6-04", text: "Rate limiting: Dakikada max 30 API çağrısı per kullanıcı", tags: ["important", "api"] },
+          { id: "f6-05", text: "Ceza sistemi: 1. uyarı → 2. 3 gün ban → 3. sezon sonu silme", tags: ["normal", "engine"] },
+        ]
+      },
+      {
+        name: "Veri Yedekleme",
+        tasks: [
+          { id: "f6-06", text: "PostgreSQL WAL: Son 7 gün point-in-time recovery", tags: ["important", "db"] },
+          { id: "f6-07", text: "Günlük pg_dump → S3/MinIO yedekleme (cron 04:00)", tags: ["important", "db"] },
+          { id: "f6-08", text: "Redis RDB snapshot: Her 15 dakikada bir", tags: ["normal", "db"] },
+          { id: "f6-09", text: "Kurtarma prosedürü dokümantasyonu ve test", tags: ["normal"] },
+        ]
+      },
+      {
+        name: "Performans & Ölçekleme",
+        tasks: [
+          { id: "f6-10", text: "Redis cache: Puan tablosu, sık erişilen veriler", tags: ["important", "db"] },
+          { id: "f6-11", text: "BullMQ worker sayısını artırma (3+ paralel maç işleme)", tags: ["normal", "engine"] },
+          { id: "f6-12", text: "Veritabanı index optimizasyonu (sık sorgular için)", tags: ["important", "db"] },
+          { id: "f6-13", text: "Socket.IO room yönetimi optimizasyonu", tags: ["normal", "api"] },
+          { id: "f6-14", text: "VPS deployment: 2 vCPU, 4GB RAM sunucu kurulumu", tags: ["important"] },
+          { id: "f6-15", text: "PM2 veya Docker production deployment", tags: ["important"] },
+          { id: "f6-16", text: "Nginx reverse proxy + SSL sertifikası", tags: ["important"] },
+        ]
+      },
+      {
+        name: "Son Dokunuşlar",
+        tasks: [
+          { id: "f6-17", text: "Ekonomi denge testi: 25-30 oyuncuyla 2 sezon simülasyon", tags: ["critical", "engine"] },
+          { id: "f6-18", text: "Hata yakalama ve loglama iyileştirmesi", tags: ["important"] },
+          { id: "f6-19", text: "Kullanıcı geri bildirim toplama mekanizması", tags: ["normal", "bot"] },
+          { id: "f6-20", text: "README.md ve kurulum dokümantasyonu", tags: ["normal"] },
+          { id: "f6-21", text: "Oyuncu onboarding akışı son test ve iyileştirme", tags: ["important", "bot"] },
+        ]
+      }
+    ]
+  }
+];
+
+// ═══════════════════════════════════════
+//  STATE
+// ═══════════════════════════════════════
+const STORAGE_KEY = "fm_project_tracker_v1";
+
+function loadState() {
+  try {
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch(e) {}
+  return { done: {}, notes: "", collapsed: {} };
+}
+
+function saveState() {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+let activeFilter = "all";
+let searchQuery = "";
+let activePhase = null; // null = show all
+
+// ═══════════════════════════════════════
+//  COMPUTED
+// ═══════════════════════════════════════
+function getAllTasks() {
+  const tasks = [];
+  PROJECT.forEach(phase => {
+    phase.categories.forEach(cat => {
+      cat.tasks.forEach(t => tasks.push({ ...t, phaseId: phase.id, phaseName: phase.phase }));
+    });
+  });
+  return tasks;
+}
+
+function getPhaseStats(phase) {
+  let total = 0, done = 0;
+  phase.categories.forEach(cat => {
+    cat.tasks.forEach(t => {
+      total++;
+      if (state.done[t.id]) done++;
+    });
+  });
+  return { total, done, pct: total > 0 ? Math.round((done / total) * 100) : 0 };
+}
+
+function getTotalStats() {
+  const all = getAllTasks();
+  const done = all.filter(t => state.done[t.id]).length;
+  return { total: all.length, done, pct: all.length > 0 ? Math.round((done / all.length) * 100) : 0 };
+}
+
+// ═══════════════════════════════════════
+//  RENDER
+// ═══════════════════════════════════════
+function render() {
+  renderHeaderStats();
+  renderOverview();
+  renderPhases();
+}
+
+function renderHeaderStats() {
+  const s = getTotalStats();
+  document.getElementById("stat-done").textContent = s.done;
+  document.getElementById("stat-total").textContent = s.total;
+  document.getElementById("stat-pct").textContent = s.pct + "%";
+}
+
+function renderOverview() {
+  const el = document.getElementById("overview");
+  el.innerHTML = PROJECT.map(phase => {
+    const s = getPhaseStats(phase);
+    const isActive = activePhase === phase.id;
+    return `
+      <div class="overview-card ${isActive ? 'active' : ''}"
+           style="--card-accent:${phase.color}; --card-accent-rgb:${phase.colorRGB}"
+           onclick="togglePhaseFilter('${phase.id}')">
+        <div class="oc-header">
+          <div class="oc-phase">${phase.phase}</div>
+          <div class="oc-icon">${phase.icon}</div>
+        </div>
+        <div class="oc-title">${phase.title}</div>
+        <div class="oc-progress-bar">
+          <div class="oc-progress-fill" style="width:${s.pct}%; background:${phase.color}"></div>
+        </div>
+        <div class="oc-stats">
+          <span><strong>${s.done}</strong> / ${s.total}</span>
+          <span style="color:${phase.color}; font-weight:600">${s.pct}%</span>
+        </div>
+      </div>
+    `;
+  }).join("");
+}
+
+function renderPhases() {
+  const container = document.getElementById("phases-container");
+  const phases = activePhase ? PROJECT.filter(p => p.id === activePhase) : PROJECT;
+
+  container.innerHTML = phases.map(phase => {
+    const s = getPhaseStats(phase);
+    const catsHTML = phase.categories.map(cat => {
+      const catKey = phase.id + "-" + cat.name;
+      const isCollapsed = state.collapsed[catKey];
+      let catDone = 0;
+      cat.tasks.forEach(t => { if (state.done[t.id]) catDone++; });
+
+      const filteredTasks = cat.tasks.filter(t => {
+        if (activeFilter === "done" && !state.done[t.id]) return false;
+        if (activeFilter === "todo" && state.done[t.id]) return false;
+        if (searchQuery) {
+          const q = searchQuery.toLowerCase();
+          return t.text.toLowerCase().includes(q) || t.tags.some(tag => tag.includes(q));
+        }
+        return true;
+      });
+
+      if (filteredTasks.length === 0 && (activeFilter !== "all" || searchQuery)) return "";
+
+      const tasksHTML = filteredTasks.map(t => {
+        const isDone = !!state.done[t.id];
+        const tagsHTML = t.tags.map(tag => `<span class="task-tag tag-${tag}">${tag}</span>`).join("");
+        return `
+          <div class="task ${isDone ? 'done' : ''}" onclick="toggleTask('${t.id}')">
+            <div class="checkbox">
+              <svg viewBox="0 0 24 24"><polyline points="20 6 9 17 4 12"></polyline></svg>
+            </div>
+            <div class="task-content">
+              <div class="task-text">${t.text}</div>
+              <div class="task-meta">${tagsHTML}</div>
+            </div>
+          </div>
+        `;
+      }).join("");
+
+      return `
+        <div class="category">
+          <div class="category-header" onclick="toggleCategory('${catKey}')">
+            <div class="category-chevron ${isCollapsed ? '' : 'open'}">▶</div>
+            <div class="category-title">${cat.name}</div>
+            <div class="category-count">${catDone}/${cat.tasks.length}</div>
+          </div>
+          <div class="category-tasks ${isCollapsed ? 'collapsed' : ''}" style="max-height: ${isCollapsed ? '0' : filteredTasks.length * 100 + 'px'}">
+            ${tasksHTML}
+          </div>
+        </div>
+      `;
+    }).join("");
+
+    return `
+      <div class="phase-section">
+        <div class="phase-header">
+          <span class="phase-badge" style="background:${phase.color}22; color:${phase.color}; border:1px solid ${phase.color}44">${phase.phase}</span>
+          <span class="phase-title">${phase.title}</span>
+          <span class="phase-desc">${phase.desc} — ${s.pct}% tamamlandı</span>
+        </div>
+        ${catsHTML}
+      </div>
+    `;
+  }).join("");
+}
+
+// ═══════════════════════════════════════
+//  ACTIONS
+// ═══════════════════════════════════════
+function toggleTask(id) {
+  state.done[id] = !state.done[id];
+  if (!state.done[id]) delete state.done[id];
+  saveState();
+  render();
+
+  // Check if phase just completed
+  PROJECT.forEach(phase => {
+    const s = getPhaseStats(phase);
+    if (s.pct === 100) {
+      showToast(`🎉 ${phase.phase}: ${phase.title} tamamlandı!`);
+    }
+  });
+}
+
+function toggleCategory(catKey) {
+  state.collapsed[catKey] = !state.collapsed[catKey];
+  saveState();
+  renderPhases();
+}
+
+function togglePhaseFilter(phaseId) {
+  activePhase = activePhase === phaseId ? null : phaseId;
+  render();
+}
+
+function showToast(msg) {
+  const toast = document.getElementById("toast");
+  toast.textContent = msg;
+  toast.classList.add("show");
+  setTimeout(() => toast.classList.remove("show"), 3000);
+}
+
+// ═══════════════════════════════════════
+//  FILTER & SEARCH
+// ═══════════════════════════════════════
+document.getElementById("filter-bar").addEventListener("click", (e) => {
+  if (e.target.classList.contains("filter-btn")) {
+    document.querySelectorAll(".filter-btn").forEach(b => b.classList.remove("active"));
+    e.target.classList.add("active");
+    activeFilter = e.target.dataset.filter;
+    renderPhases();
+  }
+});
+
+document.getElementById("search").addEventListener("input", (e) => {
+  searchQuery = e.target.value;
+  renderPhases();
+});
+
+document.getElementById("reset-btn").addEventListener("click", () => {
+  if (confirm("Tüm ilerleme sıfırlansın mı? Bu işlem geri alınamaz!")) {
+    state = { done: {}, notes: "", collapsed: {} };
+    saveState();
+    document.getElementById("notes").value = "";
+    render();
+    showToast("Tüm ilerleme sıfırlandı");
+  }
+});
+
+// ═══════════════════════════════════════
+//  NOTES
+// ═══════════════════════════════════════
+const notesEl = document.getElementById("notes");
+notesEl.value = state.notes || "";
+notesEl.addEventListener("input", () => {
+  state.notes = notesEl.value;
+  saveState();
+});
+
+// ═══════════════════════════════════════
+//  EXPORT / IMPORT
+// ═══════════════════════════════════════
+document.getElementById("export-json").addEventListener("click", () => {
+  const data = {
+    version: 1,
+    exported_at: new Date().toISOString(),
+    state: state,
+    stats: getTotalStats()
+  };
+  const blob = new Blob([JSON.stringify(data, null, 2)], { type: "application/json" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `fm-proje-ilerleme-${new Date().toISOString().split('T')[0]}.json`;
+  a.click();
+  URL.revokeObjectURL(url);
+  showToast("İlerleme dışa aktarıldı");
+});
+
+document.getElementById("import-json").addEventListener("click", () => {
+  document.getElementById("import-file").click();
+});
+
+document.getElementById("import-file").addEventListener("change", (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    try {
+      const data = JSON.parse(ev.target.result);
+      if (data.state) {
+        state = data.state;
+        saveState();
+        notesEl.value = state.notes || "";
+        render();
+        showToast("İlerleme içe aktarıldı");
+      }
+    } catch(err) {
+      alert("Geçersiz JSON dosyası");
+    }
+  };
+  reader.readAsText(file);
+  e.target.value = "";
+});
+
+// ═══════════════════════════════════════
+//  INIT
+// ═══════════════════════════════════════
+render();
+</script>
+
+</body>
+</html>
